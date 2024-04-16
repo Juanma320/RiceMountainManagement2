@@ -5,6 +5,26 @@
 include ('includes/includes.php');
 include ('includes/funciones.php');
 
+// Verificar si hay una sesión iniciada
+if (isset($_SESSION['UsuarioID'])) {
+    // Si hay sesión iniciada, redirigir según el rol
+    switch ($_SESSION['RolID']) {
+        case 1: // Admin
+            header('Location: indexadmin.php');
+            break;
+        case 2: // Coordinador
+            header('Location: indexcoordinador.php');
+            break;
+        case 3: // Financiero
+            header('Location: indexfinanciero.php');
+            break;
+        default:
+            // En caso de un rol desconocido, redirigir a una página por defecto o mostrar un mensaje de error.
+            header('Location: login.php'); // Redirigir al login
+            break;
+    }
+    exit(); // Asegúrate de salir después de la redirección.
+}
 
 // Verificar si el formulario fue enviado
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
