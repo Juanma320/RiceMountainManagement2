@@ -81,9 +81,10 @@ $resultado = mysqli_query($conexion, $query);
 
     <div class="mx-4 my-4">
         <a class="btn text-white btn-lg btn-floating" data-mdb-ripple-init style="background-color: #ac2bac;"
-            role="button" onclick="history.back()">
+            role="button" href="indexadmin.php">
             <i class="fas fa-angle-left"></i>
         </a>
+
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
@@ -126,7 +127,11 @@ $resultado = mysqli_query($conexion, $query);
                                     echo "<td>{$row['DocumentoIdentidad']}</td>";
                                     echo "<td>{$row['CantidadEmpresas']}</td>";
                                     echo "<td id='tdcenter'>";
-                                    // Agregar un formulario con un botón que envía la acción y el ID del usuario
+                                    // Mostrar el estado como texto y el botón de acción
+                                    $estadoText = $row['Activo'] ? 'Inactivar' : 'Activar';
+                                    echo "<span class='estado-text' style='display: none'>{$estadoText}</span>";
+
+                                    // Agregar un botón con el estado actual y el ID del usuario
                                     echo "<form method='post' action=''>
                                     <input type='hidden' name='usuario_id' value='{$row['UsuarioID']}'>";
                                     if ($row['Activo']) {
