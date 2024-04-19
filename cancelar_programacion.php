@@ -1,6 +1,6 @@
 <?php
-include('includes/includes.php');
-include('includes/funciones.php');
+include ('includes/includes.php');
+include ('includes/funciones.php');
 $row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
 
 if ($_SESSION['RolID'] != 1) {
@@ -23,11 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['productoID']) && isset($
     }
 
     if ($resultado) {
-        echo "Programación cancelada correctamente.";
+        echo "<script>
+          window.location.href = 'gestionproductosA.php#cambiosPreciosProgramados';
+          alert('Programación cancelada correctamente.'); 
+          </script>";
     } else {
-        echo "Error al cancelar la programación.";
+        echo "<script>alert('Error al cancelar la programación.');</script>";
     }
 } else {
-    echo "Parámetros incorrectos.";
+    echo "<script>alert('Parámetros incorrectos.');</script>";
 }
 ?>
