@@ -1,6 +1,7 @@
 <?php
-include('includes/includes.php');
-include('includes/funciones.php');
+include ('includes/includes.php');
+include ('includes/funciones.php');
+
 $row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
 
 if ($_SESSION['RolID'] != 1) {
@@ -8,6 +9,7 @@ if ($_SESSION['RolID'] != 1) {
     exit();
 }
 
+// Verificar si se recibió un ID de categoría
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['categoriaID']) && !empty($_GET['categoriaID'])) {
     $categoriaID = $_GET['categoriaID'];
 
@@ -42,4 +44,3 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['categoriaID']) && !empty
 } else {
     echo "No se proporcionó un ID de categoría válido.";
 }
-?>
