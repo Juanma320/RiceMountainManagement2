@@ -24,14 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['eliminar_id'])) {
     eliminarDireccion($conexion, $eliminarID);
 }
 
-// Lógica para agregar una dirección si se recibe el formulario por POST
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['direccion']) && isset($_POST['ciudad']) && isset($_POST['codigoPostal'])) {
-    $direccion = $_POST['direccion'];
-    $ciudad = $_POST['ciudad'];
-    $codigoPostal = $_POST['codigoPostal'];
-    agregarDireccion($conexion, $proveedorID, $direccion, $ciudad, $codigoPostal);
-}
-
 // Consulta SQL para obtener las direcciones del proveedor
 $query = "SELECT ID, Direccion, Ciudad, codigoPostal FROM proveedores_direcciones WHERE ProveedorID = ?";
 $statement = mysqli_prepare($conexion, $query);
@@ -85,7 +77,7 @@ $resultado = mysqli_stmt_get_result($statement);
 
     <div class="mx-4 my-4">
         <a class="btn text-white btn-lg btn-floating" data-mdb-ripple-init style="background-color: #ac2bac;"
-            role="button" href="gestionproveedores.php">
+            role="button" onclick="window.location.href='gestionproveedores.php'">
             <i class="fas fa-angle-left"></i>
         </a>
 
@@ -102,7 +94,8 @@ $resultado = mysqli_stmt_get_result($statement);
                 <div class="col-md-12">
                     <ul class="nav nav-pills flex-column flex-md-row">
                         <li class="nav-item">
-                            <a href="agregar_direccion_proveedor.php" style="color: #F9F6EE">
+                            <a href="agregar_direccion_proveedor.php?id=<?php echo $proveedorID; ?>"
+                                style="color: #F9F6EE">
                                 <button data-mdb-ripple-init type="button" class="btn btn-primary btn-rounded">
                                     <i class="fas fa-user pe-2"></i>Agregar dirección</button>
                             </a>
@@ -143,19 +136,6 @@ $resultado = mysqli_stmt_get_result($statement);
                                 }
                                 ?>
                             </table>
-
-                            <h2>Agregar Dirección</h2>
-                            <form method='post' action=''>
-                                <input type='hidden' name='proveedor_id' value='$proveedorID'>
-                                <label for='direccion'>Dirección:</label>
-                                <input type='text' id='direccion' name='direccion' required>
-                                <label for='ciudad'>Ciudad:</label>
-                                <input type='text' id='ciudad' name='ciudad' required>
-                                <label for='codigoPostal'>Código Postal:</label>
-                                <input type='text' id='codigoPostal' name='codigoPostal' required>
-                                <button type='submit'>Agregar Dirección</button>
-                            </form>
-
                         </div>
                     </div>
                 </div>
