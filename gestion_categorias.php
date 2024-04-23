@@ -116,16 +116,9 @@ $resultadoCategorias = mysqli_query($conexion, $queryCategorias);
                         </div>
                     </div>
                 </div>
-
-                <!-- Formulario para agregar categoría -->
-                <h2>Agregar Categoría</h2>
-                <form action="procesar_categoria.php" method="post">
-                    <label for="nombreCategoria">Nombre de la Categoría:</label>
-                    <input type="text" id="nombreCategoria" name="nombreCategoria" required><br>
-                    <input type="submit" value="Agregar Categoría">
-                </form>
             </div>
         </div>
+    </div>
 
 </body>
 
