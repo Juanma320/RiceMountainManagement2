@@ -9,24 +9,6 @@ if ($_SESSION['RolID'] != 1) {
     exit();
 }
 
-// Procesar el formulario de nueva presentación
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['nombrePresentacion']) && !empty($_POST['nombrePresentacion']) && isset($_POST['medida']) && !empty($_POST['medida'])) {
-        $nombrePresentacion = $_POST['nombrePresentacion'];
-        $medida = $_POST['medida'];
-
-        // Insertar la nueva presentación en la base de datos
-        $queryInsertPresentacion = "INSERT INTO presentaciones (NombrePresentacion, Medida) VALUES ('$nombrePresentacion', '$medida')";
-        if (mysqli_query($conexion, $queryInsertPresentacion)) {
-            echo "<p>Presentación agregada correctamente.</p>";
-        } else {
-            echo "<p>Error al agregar la presentación.</p>";
-        }
-    } else {
-        echo "<p>Por favor, complete todos los campos.</p>";
-    }
-}
-
 // Obtener presentaciones
 $queryPresentaciones = "SELECT * FROM presentaciones";
 $resultPresentaciones = mysqli_query($conexion, $queryPresentaciones);
@@ -132,23 +114,6 @@ $resultPresentaciones = mysqli_query($conexion, $queryPresentaciones);
                                 }
                                 ?>
                             </table>
-
-                            <h2>Añadir Nueva Presentación</h2>
-                            <form method="post" action="procesar_presentacion.php">
-                                <label for="nombrePresentacion">Nombre Presentación:</label>
-                                <input type="text" id="nombrePresentacion" name="nombrePresentacion" required><br>
-
-                                <label for="medida">Medida:</label>
-                                <input type="number" id="medida" name="medida" required>
-                                <select name="medicion" id="medicion">
-                                    <option value="ml">ml</option>
-                                    <option value="g">g</option>
-                                    <option value="unidad">Unidad</option>
-                                </select><br>
-
-                                <input type="submit" value="Agregar">
-                            </form>
-
                         </div>
                     </div>
                 </div>
@@ -160,18 +125,6 @@ $resultPresentaciones = mysqli_query($conexion, $queryPresentaciones);
 
 </html>
 
-<script>
-    function agregarMedida() {
-        var medidaSelect = document.getElementById('medidaSelect');
-        var medidaInput = document.getElementById('medidaInput');
-
-        if (medidaSelect.value === 'g') {
-            medidaInput.value += ' g';
-        } else {
-            medidaInput.value = medidaInput.value.replace(' g', '');
-        }
-    }
-</script>
 <script type="text/javascript" src="js/mdb.umd.min.js"></script>
 <script type="text/javascript"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
