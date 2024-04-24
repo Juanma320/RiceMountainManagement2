@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['direccion']) && isset(
                                     </div>
                                     <div class="order-1 p-2">
                                         <button data-mdb-ripple-init type="button" class="btn btn-danger"
-                                            onclick="window.location.href='gestion_categorias.php'">
+                                            onclick="window.location.href='direccionesproveedor.php?id=<?php echo $proveedorID; ?>'">
                                             <i class="fas fa-ban pe-2"></i>Cancelar
                                         </button>
                                     </div>
