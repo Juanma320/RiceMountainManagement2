@@ -18,14 +18,6 @@ if (isset($_GET['id'])) {
     exit();
 }
 
-// Lógica para agregar una marca si se recibe el formulario
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['nombre_marca'])) {
-    $nombreMarca = $_POST['nombre_marca'];
-    agregarMarcaProveedor($conexion, $proveedorID, $nombreMarca);
-    header('Location: marcasproveedor.php?id=' . $proveedorID);
-    exit();
-}
-
 // Consulta SQL para obtener las marcas del proveedor
 $query = "SELECT MarcaID, NombreMarca, Estado FROM marcas WHERE ProveedorID = ?";
 $statement = mysqli_prepare($conexion, $query);
@@ -96,7 +88,7 @@ $resultado = mysqli_stmt_get_result($statement);
                 <div class="col-md-12">
                     <ul class="nav nav-pills flex-column flex-md-row">
                         <li class="nav-item">
-                            <a href="agregar_marca.php" style="color: #F9F6EE">
+                            <a href="agregar_marca.php?id=<?php echo $proveedorID; ?>" style=" color: #F9F6EE">
                                 <button data-mdb-ripple-init type="button" class="btn btn-primary btn-rounded">
                                     <i class="fas fa-user pe-2"></i>Agregar marca</button>
                             </a>
@@ -150,14 +142,6 @@ $resultado = mysqli_stmt_get_result($statement);
                                 }
                                 ?>
                             </table>
-
-                            <h2>Agregar Marca</h2>
-                            <form method='post' action='procesar_marca.php?id=<?php echo $proveedorID; ?>'>
-                                <label for='nombre_marca'>Nombre de la Marca:</label>
-                                <input type='text' id='nombre_marca' name='nombre_marca' required>
-                                <button type='submit'>Agregar Marca</button>
-                            </form>
-
                         </div>
                     </div>
                 </div>
