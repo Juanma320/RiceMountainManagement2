@@ -73,8 +73,8 @@ $usuario = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
                         <div class="row g-0">
                             <div class="col-md-4 near-moon-gradient text-center text-white"
                                 style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
-                                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp"
-                                    alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
+                                <img src="<?php echo $usuario['FotoPerfil']; ?>" alt="Avatar" class="img-fluid my-5"
+                                    style="height: 80px; width: 80px; border-radius: 50%; object-fit: cover" />
                                 <h5><?php echo $usuario['NombreUsuario']; ?></h5>
                                 <p><?php echo obtenerNombreRol($conexion, $usuario['RolID']); ?></p>
                                 <a href="editar_user.php" class="text-white"><i class="far fa-edit mb-5"></i></a>
