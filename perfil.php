@@ -74,7 +74,7 @@ $usuario = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
                             <div class="col-md-4 near-moon-gradient text-center text-white"
                                 style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
                                 <img src="<?php echo $usuario['FotoPerfil']; ?>" alt="Avatar" class="img-fluid my-5"
-                                    style="height: 80px; width: 80px; border-radius: 50%; object-fit: cover" />
+                                    style="height: 80px; width: 80px; border-radius: 50%; object-fit: cover;" />
                                 <h5><?php echo $usuario['NombreUsuario']; ?></h5>
                                 <p><?php echo obtenerNombreRol($conexion, $usuario['RolID']); ?></p>
                                 <a href="editar_user.php" class="text-white"><i class="far fa-edit mb-5"></i></a>
@@ -97,7 +97,7 @@ $usuario = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
                                     <hr class="mt-0 mb-4">
                                     <div class="row pt-1">
                                         <div class="col-6 mb-3">
-                                            <a href="editar_perfil.php"><button type="button"
+                                            <a href="cambiar_contraseña.php"><button type="button"
                                                     class="btn btn-primary btn-rounded" data-mdb-ripple-init>Cambiar
                                                     contraseña</button></a>
                                         </div>

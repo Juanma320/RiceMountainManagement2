@@ -123,9 +123,8 @@ if (is_array($usuario) && isset($usuario['UsuarioID'])) {
                                             // Verificar si $usuario es un array válido y si tiene el índice 'FotoPerfil'
                                             if (is_array($usuario) && isset($usuario['FotoPerfil'])) {
                                                 // Mostrar la imagen de perfil
-                                                echo '<img id="imagen-perfil" src="' . $usuario['FotoPerfil'] . '"
-                                        alt="Foto de perfil" class="img-fluid"
-                                        style="height: 80px; width: 80px; border-radius: 50%; object-fit: cover" >';
+                                                echo '<img id="imagen-perfil" src="' . $usuario['FotoPerfil'] . '" alt="Foto de perfil"
+                                                style="height: 80px; width: 80px; border-radius: 50%; object-fit: cover" >';
                                             } else {
                                                 // Mostrar un mensaje de error
                                                 echo "Error: No se pudo cargar la foto de perfil.";
