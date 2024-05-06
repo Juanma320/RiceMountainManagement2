@@ -93,7 +93,7 @@ if ($resultCompras && mysqli_num_rows($resultCompras) > 0) {
 
     <div class="mx-4 my-4">
         <a class="btn text-white btn-lg btn-floating" data-mdb-ripple-init style="background-color: #ac2bac;"
-            role="button" href="gestionproveedores.php">
+            role="button" onclick="return cancelarActualizacion()">
             <i class="fas fa-angle-left"></i>
         </a>
 
@@ -244,4 +244,10 @@ if ($resultCompras && mysqli_num_rows($resultCompras) > 0) {
     import { Ripple, initMDB } from "mdb-ui-kit";
 
     initMDB({ Ripple });
+</script>
+<script>
+    function cancelarActualizacion() {
+        var url = <?php echo ($_SESSION['RolID'] == 3) ? "'gestion_proveedores_financiero.php'" : "'gestionproveedores.php'"; ?>;
+        window.location.href = url;
+    }
 </script>
