@@ -296,15 +296,6 @@ $resultadoCambiosPorcentaje = mysqli_query($conexion, $queryCambiosPorcentaje);
 <script>$('#sortTable1').DataTable({ order: [[0, 'asc']] })</script>
 <script>$('#sortTable2').DataTable({ order: [[0, 'asc']] })</script>
 <script>
-    const loginButton = document.getElementById('loginButton');
-
-    loginButton.addEventListener('click', () => {
-        // Enviar el formulario aquí
-        const form = document.querySelector('form'); // Selecciona el formulario
-        form.submit(); // Envía el formulario
-    });
-</script>
-<script>
     // Initialization for ES Users
     import { Ripple, initMDB } from "mdb-ui-kit";
 

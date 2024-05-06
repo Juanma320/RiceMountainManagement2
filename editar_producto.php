@@ -83,7 +83,7 @@ $fechaFinBeneficioActual = obtenerFechaFinBeneficioActual($conexion, $producto['
 
     <div class="mx-4 my-4">
         <a class="btn text-white btn-lg btn-floating" data-mdb-ripple-init style="background-color: #ac2bac;"
-            role="button" onclick="window.location.href='gestionproductosA.php'">
+            role="button" onclick="cancelarActualizacion()">
             <i class="fas fa-angle-left"></i>
         </a>
 
