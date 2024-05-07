@@ -71,43 +71,37 @@ while ($row2 = mysqli_fetch_assoc($resultado)) {
 
 
         <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1>Gestionar Proveedores</h1>
+                    </div>
+                </div>
+            </div>
+
             <div class="row mt-4">
                 <div class="col-md-12">
-                    <ul class="nav nav-pills flex-column flex-md-row">
-                        <li class="nav-item">
-                            <a href="agregar_proveedor.php" style="color: #F9F6EE">
-                                <button data-mdb-ripple-init type="button" class="btn btn-primary btn-rounded">
-                                    <i class="fas fa-user pe-2"></i>Agregar proveedor</button>
-                            </a>
-                        </li>
-                    </ul>
-
-                    <div class="row mt-4">
-                        <div class="col-md-12">
-                            <table class="table table-striped table-responsive rounded-9 overflow-hidden table-hover"
-                                id="sortTable">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>NombreProveedor</th>
-                                        <th>CorreoElectronico</th>
-                                        <th>Telefono</th>
-                                        <th>Contacto</th>
-                                    </tr>
-                                </thead>
-                                <?php foreach ($proveedores as $proveedor): ?>
-                                    <tr>
-                                        <td><a data-mdb-ripple-init data-mdb-ripple-color="dark"
-                                                class="btn btn-outline-dark"
-                                                href='infoproveedor.php?proveedorID=<?= $proveedor['ProveedorID'] ?>'>
-                                                <?= $proveedor['NombreProveedor'] ?></a></td>
-                                        <td><?= $proveedor['CorreoElectronico'] ?></td>
-                                        <td><?= $proveedor['Telefono'] ?></td>
-                                        <td><?= $proveedor['Contacto'] ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </table>
-                        </div>
-                    </div>
+                    <table class="table table-striped table-responsive rounded-9 overflow-hidden table-hover"
+                        id="sortTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>NombreProveedor</th>
+                                <th>CorreoElectronico</th>
+                                <th>Telefono</th>
+                                <th>Contacto</th>
+                            </tr>
+                        </thead>
+                        <?php foreach ($proveedores as $proveedor): ?>
+                            <tr>
+                                <td><a data-mdb-ripple-init data-mdb-ripple-color="dark" class="btn btn-outline-dark"
+                                        href='infoproveedor.php?proveedorID=<?= $proveedor['ProveedorID'] ?>'>
+                                        <?= $proveedor['NombreProveedor'] ?></a></td>
+                                <td><?= $proveedor['CorreoElectronico'] ?></td>
+                                <td><?= $proveedor['Telefono'] ?></td>
+                                <td><?= $proveedor['Contacto'] ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </table>
                 </div>
             </div>
         </div>

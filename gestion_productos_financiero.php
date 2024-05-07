@@ -106,48 +106,44 @@ $resultadoCambiosPorcentaje = mysqli_query($conexion, $queryCambiosPorcentaje);
 
             <div class="row mt-4">
                 <div class="col-md-12">
-                    <div class="row mt-4">
-                        <div class="col-md-12">
-                            <table class="table table-striped table-responsive rounded-9 overflow-hidden table-hover"
-                                id="sortTable">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Nombre Producto</th>
-                                        <th>Categoría</th>
-                                        <th>Presentación</th>
-                                        <th>Marca</th>
-                                        <th>Medida</th>
-                                        <th>Cantidad Final</th>
-                                        <th>Precio Unitario</th>
-                                        <th>% de Beneficio</th>
-                                        <th>Precio Final Unitario</th>
-                                        <th>Modificar Precio</th>
-                                        <th>Modificar % Beneficio</th>
-                                    </tr>
-                                </thead>
-                                <?php
-                                // Iterar sobre los resultados y mostrar en la tabla
-                                while ($row = mysqli_fetch_assoc($resultadoProductos)) {
-                                    $precioUnitario = obtenerPrecioUnitario($conexion, $row['ProductoID']); // Pasar la conexión y el ID del producto
-                                    $precioFinalUnitario = $precioUnitario * (1 + $row['PorcentajeBeneficio'] / 100);
-                                    echo "<tr>";
-                                    echo "<td>{$row['NombreProducto']}</td>";
-                                    echo "<td>{$row['NombreCategoria']}</td>";
-                                    echo "<td>{$row['NombrePresentacion']}</td>";
-                                    echo "<td>{$row['NombreMarca']}</td>";
-                                    echo "<td>{$row['Medida']}</td>";
-                                    echo "<td>{$row['CantidadFinal']}</td>";
-                                    echo "<td>{$precioUnitario} Cop</td>";
-                                    echo "<td>{$row['PorcentajeBeneficio']}%</td>";
-                                    echo "<td>{$precioFinalUnitario} Cop</td>";
-                                    echo "<td><a data-mdb-ripple-init class='btn btn-warning' href='modificar_precio.php?productoID={$row['ProductoID']}'>Modificar</a></td>";
-                                    echo "<td><a data-mdb-ripple-init class='btn btn-warning' href='editar_producto.php?id={$row['ProductoID']}'>Modificar</a></td>";
-                                    echo "</tr>";
-                                }
-                                ?>
-                            </table>
-                        </div>
-                    </div>
+                    <table class="table table-striped table-responsive rounded-9 overflow-hidden table-hover"
+                        id="sortTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nombre Producto</th>
+                                <th>Categoría</th>
+                                <th>Presentación</th>
+                                <th>Marca</th>
+                                <th>Medida</th>
+                                <th>Cantidad Final</th>
+                                <th>Precio Unitario</th>
+                                <th>% de Beneficio</th>
+                                <th>Precio Final Unitario</th>
+                                <th>Modificar Precio</th>
+                                <th>Modificar % Beneficio</th>
+                            </tr>
+                        </thead>
+                        <?php
+                        // Iterar sobre los resultados y mostrar en la tabla
+                        while ($row = mysqli_fetch_assoc($resultadoProductos)) {
+                            $precioUnitario = obtenerPrecioUnitario($conexion, $row['ProductoID']); // Pasar la conexión y el ID del producto
+                            $precioFinalUnitario = $precioUnitario * (1 + $row['PorcentajeBeneficio'] / 100);
+                            echo "<tr>";
+                            echo "<td>{$row['NombreProducto']}</td>";
+                            echo "<td>{$row['NombreCategoria']}</td>";
+                            echo "<td>{$row['NombrePresentacion']}</td>";
+                            echo "<td>{$row['NombreMarca']}</td>";
+                            echo "<td>{$row['Medida']}</td>";
+                            echo "<td>{$row['CantidadFinal']}</td>";
+                            echo "<td>{$precioUnitario} Cop</td>";
+                            echo "<td>{$row['PorcentajeBeneficio']}%</td>";
+                            echo "<td>{$precioFinalUnitario} Cop</td>";
+                            echo "<td><a data-mdb-ripple-init class='btn btn-warning' href='modificar_precio.php?productoID={$row['ProductoID']}'>Modificar</a></td>";
+                            echo "<td><a data-mdb-ripple-init class='btn btn-warning' href='editar_producto.php?id={$row['ProductoID']}'>Modificar</a></td>";
+                            echo "</tr>";
+                        }
+                        ?>
+                    </table>
                 </div>
             </div>
         </div>
