@@ -1,27 +1,17 @@
 <?php
-include('includes/includes.php');
-include('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
-include('includes/navbar.php');
+include ('includes/includes.php');
+include ('includes/funciones.php');
 
-// Obtener el ID del proveedor de la URL
+$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+
 $proveedorID = $_GET['proveedorID'];
 $compraID = $_GET['compraID'];
 
-// Verificar si se recibió un ID de proveedor
 if ($proveedorID) {
-    // Obtener información del proveedor
     $queryProveedor = "SELECT * FROM proveedores WHERE ProveedorID = $proveedorID";
     $resultProveedor = mysqli_query($conexion, $queryProveedor);
     $rowProveedor = mysqli_fetch_assoc($resultProveedor);
 
-    // Mostrar información del proveedor
-    echo "<h2>Información de la Compra:</h2>";
-    echo "<p><strong>Nombre:</strong> {$rowProveedor['NombreProveedor']}</p>";
-    echo "<p><strong>Correo Electrónico:</strong> {$rowProveedor['CorreoElectronico']}</p>";
-    echo "<p><strong>Teléfono:</strong> {$rowProveedor['Telefono']}</p>";
-
-    // Obtener valor total de la compra
     $queryValorTotalCompra = "SELECT IFNULL(SUM(dc.Cantidad * pc.PrecioUnitario), 0) AS ValorTotal FROM detalle_compra dc
     INNER JOIN precio_compras pc ON dc.ProductoID = pc.ProductoID
     WHERE dc.CompraID = $compraID";
@@ -29,85 +19,19 @@ if ($proveedorID) {
     $rowValorTotalCompra = mysqli_fetch_assoc($resultValorTotalCompra);
     $valorTotalCompra = $rowValorTotalCompra['ValorTotal'];
 
-    // Obtener información de la compra
     $queryCompra = "SELECT * FROM compras WHERE CompraID = $compraID";
     $resultCompra = mysqli_query($conexion, $queryCompra);
     $rowCompra = mysqli_fetch_assoc($resultCompra);
 
-    // Mostrar información de la compra
-    echo "<p><strong>Fecha de Entrega:</strong> {$rowCompra['FechaCompra']}</p>";
-    echo "<p><strong>Valor Total de la Compra:</strong> $valorTotalCompra</p>";
-
-    // Formulario para agregar detalles de compra
-    echo "<h2>Agregar Detalles de Compra</h2>";
-    echo "<form action='procesar_detalle_compra.php' method='post'>";
-    // Campo oculto para pasar el ID del proveedor
-    echo "<input type='hidden' name='proveedorID' value='$proveedorID'>";
-    echo "<input type='hidden' name='compraID' value='$compraID'>"; // Añadido para recopilar el ID de la compra
-
-    // Filtros
-    echo "<label for='marca'>Marca:</label>";
-    echo "<select name='marca' id='marca' onchange='actualizarProductos()'>";
-    echo "<option value=''>Todas las Marcas</option>";
     $queryMarcasProveedor = "SELECT m.* FROM marcas m WHERE m.ProveedorID = $proveedorID";
     $resultMarcasProveedor = mysqli_query($conexion, $queryMarcasProveedor);
-    while ($rowMarca = mysqli_fetch_assoc($resultMarcasProveedor)) {
-        echo "<option value='{$rowMarca['MarcaID']}'>{$rowMarca['NombreMarca']}</option>";
-    }
-    echo "</select><br>";
 
-    echo "<label for='categoria'>Categoría:</label>";
-    echo "<select name='categoria' id='categoria' onchange='actualizarProductos()'>";
-    echo "<option value=''>Todas las Categorías</option>";
     $queryCategorias = "SELECT * FROM categorias";
     $resultCategorias = mysqli_query($conexion, $queryCategorias);
-    while ($rowCategoria = mysqli_fetch_assoc($resultCategorias)) {
-        echo "<option value='{$rowCategoria['CategoriaID']}'>{$rowCategoria['NombreCategoria']}</option>";
-    }
-    echo "</select><br>";
 
-    echo "<label for='presentacion'>Presentación:</label>";
-    echo "<select name='presentacion' id='presentacion' onchange='actualizarProductos()'>";
-    echo "<option value=''>Todas las Presentaciones</option>";
     $queryPresentaciones = "SELECT * FROM presentaciones";
     $resultPresentaciones = mysqli_query($conexion, $queryPresentaciones);
-    while ($rowPresentacion = mysqli_fetch_assoc($resultPresentaciones)) {
-        echo "<option value='{$rowPresentacion['PresentacionID']}'>{$rowPresentacion['NombrePresentacion']}</option>";
-    }
-    echo "</select><br>";
 
-    // Select de productos
-    echo "<label for='producto'>Producto:</label>";
-    echo "<select name='producto' id='producto'>";
-    echo "<option value=''>Seleccione un producto</option>";
-    echo "</select><br>";
-
-    // Cantidad
-    echo "<label for='cantidad'>Cantidad:</label>";
-    echo "<input type='number' id='cantidad' name='cantidad' min='1' required><br>";
-
-    // Botón para agregar
-    echo "<input type='submit' value='Agregar'>";
-    echo "</form>";
-
-    // Botón para terminar la compra
-    echo "<form action='infoproveedor.php' method='get'>";
-    echo "<input type='hidden' name='proveedorID' value='$proveedorID'>";
-    echo "<input type='submit' value='Terminar Compra'>";
-    echo "</form>";
-
-    echo "<form action='cancelar_compra.php' method='post'>";
-    echo "<input type='hidden' name='proveedorID' value='$proveedorID'>";
-    echo "<input type='hidden' name='compraID' value='$compraID'>"; // Añadido para recopilar el ID de la compra
-    echo "<input type='submit' value='Cancelar Compra'>";
-    echo "</form>";
-
-    // Tabla de productos agregados
-    echo "<h2>Productos Agregados</h2>";
-    echo "<table border='1'>";
-    echo "<tr><th>Nombre Producto</th><th>Marca</th><th>Presentación</th><th>Cantidad</th><th>Precio Unitario</th><th>Valor Total</th><th>Acciones</th></tr>";
-
-    // Obtener detalles de compra
     $queryDetallesCompra = "SELECT dc.*, p.NombreProducto, m.NombreMarca, pr.NombrePresentacion, pc.PrecioUnitario FROM detalle_compra dc
                             INNER JOIN productos p ON dc.ProductoID = p.ProductoID
                             INNER JOIN marcas m ON p.MarcaID = m.MarcaID
@@ -115,26 +39,298 @@ if ($proveedorID) {
                             INNER JOIN precio_compras pc ON dc.ProductoID = pc.ProductoID
                             WHERE dc.CompraID = $compraID";
     $resultDetallesCompra = mysqli_query($conexion, $queryDetallesCompra);
+}
+?>
 
-    while ($rowDetalleCompra = mysqli_fetch_assoc($resultDetallesCompra)) {
-        $valorTotal = $rowDetalleCompra['Cantidad'] * $rowDetalleCompra['PrecioUnitario'];
-        echo "<tr><td>{$rowDetalleCompra['NombreProducto']}</td><td>{$rowDetalleCompra['NombreMarca']}</td><td>{$rowDetalleCompra['NombrePresentacion']}</td><td>{$rowDetalleCompra['Cantidad']}</td><td>{$rowDetalleCompra['PrecioUnitario']}</td><td>$valorTotal</td><td><a href='eliminar_detalle_compra.php?detalleID={$rowDetalleCompra['DetalleCompraID']}&compraID=$compraID&proveedorID=$proveedorID'>Eliminar</a></td></tr>";
-    }
+<!DOCTYPE html>
+<html lang="es">
 
-    echo "</table>";
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información de Compra</title>
 
-    // Script para actualizar productos
-    echo <<<EOD
-    <script>
+    <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" />
+    <link rel="stylesheet" href="css/mdb.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/dataTables.bootstrap4.min.css">
+</head>
+
+<body class="gradient-custom-1">
+
+    <?php include ('includes/navbar.php'); ?>
+
+    <style>
+        .gradient-custom-1 {
+            height: 100vh;
+
+            /* fallback for old browsers */
+            background: #EEEEEE;
+        }
+
+        .mask-custom {
+            background: rgba(24, 24, 16, .2);
+            border-radius: 2em;
+            backdrop-filter: blur(25px);
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            background-clip: padding-box;
+            box-shadow: 10px 10px 10px rgba(46, 54, 68, 0.03);
+        }
+
+        #tdcenter {
+            display: flex;
+            justify-content: center;
+        }
+
+        .infoprov {
+            font-size: 37px;
+        }
+    </style>
+
+    <div class="mx-4 my-4">
+        <a class="btn text-white btn-lg btn-floating" data-mdb-ripple-init style="background-color: #ac2bac;"
+            role="button" onclick="window.location.href='infoproveedor.php?proveedorID=<?php echo $proveedorID; ?>'">
+            <i class="fas fa-angle-left"></i>
+        </a>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 mb-5">
+                    <div class="container">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="pb-4">
+                                    <h1 class="infoprov">Información de la compra</h1>
+                                </div>
+                                <?php if ($proveedorID): ?>
+                                    <p><strong>Nombre:</strong><br>
+                                        <?= $rowProveedor['NombreProveedor'] ?>
+                                    </p>
+                                    <p><strong>Correo Electrónico:</strong><br>
+                                        <?= $rowProveedor['CorreoElectronico'] ?>
+                                    </p>
+                                    <p><strong>Teléfono:</strong><br>
+                                        <?= $rowProveedor['Telefono'] ?>
+                                    </p>
+                                    <p><strong>Fecha de Entrega:</strong><br>
+                                        <?= $rowCompra['FechaCompra'] ?>
+                                    </p>
+                                    <p><strong>Valor Total de la Compra:</strong><br>
+                                        <?= $valorTotalCompra ?>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-9">
+                        <div class="container">
+                            <div class="card p-4">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h1>Agregar detalles de compra</h1>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-4">
+                                    <div class="col-md-12">
+                                        <form action='procesar_detalle_compra.php' method='post'>
+                                            <input type='hidden' name='proveedorID' value='<?= $proveedorID ?>'>
+                                            <input type='hidden' name='compraID' value='<?= $compraID ?>'>
+
+                                            <div class="row">
+                                                <div class="col-sm-6 mb-4">
+                                                    <div class="d-flex flex-nowrap">
+                                                        <div class="order-0 d-flex align-items-center pe-3">
+                                                            <i class="fas fa-tag white-text"></i>
+                                                        </div>
+                                                        <div class="order-1 form-outline form-white form-floating">
+                                                            <select id="marca" name="marca" onchange="actualizarProductos()"
+                                                                class="form-select bg-transparent" data-mdb-select-init
+                                                                required>
+                                                                <option value="">Todas las marcas</option>
+                                                                <?php while ($rowMarca = mysqli_fetch_assoc($resultMarcasProveedor)): ?>
+                                                                    <option value="<?= $rowMarca['MarcaID'] ?>">
+                                                                        <?= $rowMarca['NombreMarca'] ?>
+                                                                    </option>
+                                                                <?php endwhile; ?>
+                                                            </select>
+                                                            <label for="floatingSelect">Marca</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6 mb-4">
+                                                    <div class="d-flex flex-nowrap">
+                                                        <div class="order-0 d-flex align-items-center pe-3">
+                                                            <i class="fas fa-tag white-text"></i>
+                                                        </div>
+                                                        <div class="order-1 form-outline form-white form-floating">
+                                                            <select name='categoria' id='categoria'
+                                                                onchange='actualizarProductos()'
+                                                                class="form-select bg-transparent" data-mdb-select-init
+                                                                required>
+                                                                <option value="">Todas las categorías</option>
+                                                                <?php while ($rowCategoria = mysqli_fetch_assoc($resultCategorias)): ?>
+                                                                    <option value='<?= $rowCategoria['CategoriaID'] ?>'>
+                                                                        <?= $rowCategoria['NombreCategoria'] ?>
+                                                                    </option>
+                                                                <?php endwhile; ?>
+                                                            </select>
+                                                            <label for="floatingSelect">Categoría</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6 mb-4">
+                                                    <div class="d-flex flex-nowrap">
+                                                        <div class="order-0 d-flex align-items-center pe-3">
+                                                            <i class="fas fa-tag white-text"></i>
+                                                        </div>
+                                                        <div class="order-1 form-outline form-white form-floating">
+                                                            <select name='presentacion' id='presentacion'
+                                                                onchange='actualizarProductos()'
+                                                                class="form-select bg-transparent" data-mdb-select-init
+                                                                required>
+                                                                <option value="">Todas las categorías</option>
+                                                                <?php while ($rowPresentacion = mysqli_fetch_assoc($resultPresentaciones)): ?>
+                                                                    <option value='<?= $rowPresentacion['PresentacionID'] ?>'>
+                                                                        <?= $rowPresentacion['NombrePresentacion'] ?>
+                                                                    </option>
+                                                                <?php endwhile; ?>
+                                                            </select>
+                                                            <label for="floatingSelect">Presentación</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6 mb-4">
+                                                    <div class="d-flex flex-nowrap">
+                                                        <div class="order-0 d-flex align-items-center pe-3">
+                                                            <i class="fas fa-tag white-text"></i>
+                                                        </div>
+                                                        <div class="order-1 form-outline form-white form-floating">
+                                                            <select name='producto' id='producto'
+                                                                class="form-select bg-transparent" data-mdb-select-init
+                                                                required>
+                                                                <option value="">Seleccione un producto</option>
+                                                            </select>
+                                                            <label for="floatingSelect">Producto</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6 mb-4">
+                                                    <div class="d-flex flex-nowrap">
+                                                        <div class="order-0 d-flex align-items-center pe-3">
+                                                            <i class="far fa-user prefix white-text"></i>
+                                                        </div>
+                                                        <div data-mdb-input-init class="order-1 form-outline">
+                                                            <input type="number" id="cantidad"
+                                                                class="form-control form-control-lg" name="cantidad" min="1"
+                                                                required />
+                                                            <label class="form-label" for="cantidad">Cantidad</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-flex flex-row-reverse justify-content-left">
+                                                    <div class="order-0 p-2">
+                                                        <input type='submit' value='Agregar compra' class="btn btn-primary"
+                                                            data-mdb-ripple-init>
+                                                    </div>
+                                        </form>
+
+                                        <div class="order-1 p-2">
+                                            <form action='infoproveedor.php' method='get'>
+                                                <input type='hidden' name='proveedorID' value='<?= $proveedorID ?>'>
+                                                <input type='submit' value='Terminar compra' class="btn btn-secondary"
+                                                    data-mdb-ripple-init>
+                                            </form>
+                                        </div>
+
+                                        <div class="order-2 p-2">
+                                            <form action='cancelar_compra.php' method='post'>
+                                                <input type='hidden' name='proveedorID' value='<?= $proveedorID ?>'>
+                                                <input type='hidden' name='compraID' value='<?= $compraID ?>'>
+                                                <input type='submit' value='Cancelar compra' class="btn btn-tertiary"
+                                                    data-mdb-ripple-init data-mdb-ripple-color="light">
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="container">
+                    <div class="card p-4">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h1>Productos agregados</h1>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <table class="table table-striped table-responsive rounded-9 overflow-hidden table-hover"
+                                    id="sortTable">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Nombre Producto</th>
+                                            <th>Marca</th>
+                                            <th>Presentación</th>
+                                            <th>Cantidad</th>
+                                            <th>Precio Unitario</th>
+                                            <th>Valor Total</th>
+                                            <th class="text-center">Eliminar Producto</th>
+                                        </tr>
+                                    </thead>
+                                    <?php while ($rowDetalleCompra = mysqli_fetch_assoc($resultDetallesCompra)): ?>
+                                        <?php $valorTotal = $rowDetalleCompra['Cantidad'] * $rowDetalleCompra['PrecioUnitario']; ?>
+                                        <tr>
+                                            <td><?= $rowDetalleCompra['NombreProducto'] ?></td>
+                                            <td><?= $rowDetalleCompra['NombreMarca'] ?></td>
+                                            <td><?= $rowDetalleCompra['NombrePresentacion'] ?></td>
+                                            <td><?= $rowDetalleCompra['Cantidad'] ?></td>
+                                            <td><?= $rowDetalleCompra['PrecioUnitario'] ?></td>
+                                            <td><?= $valorTotal ?></td>
+                                            <td class="text-center"><a data-mdb-ripple-init class='btn btn-danger'
+                                                    href='eliminar_detalle_compra.php?detalleID=<?= $rowDetalleCompra['DetalleCompraID'] ?>&compraID=<?= $compraID ?>&proveedorID=<?= $proveedorID ?>'
+                                                    onclick="return confirm('¿Estás seguro de eliminar este producto?');">
+                                                    <i class='fas fa-ban pe-2'></i>Eliminar producto</a>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                </table>
+                            <?php else: ?>
+                                <p>No se proporcionó un ID de proveedor.</p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                </br></br>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+
+<script>
     function actualizarProductos() {
-        // Obtiene los valores seleccionados de los filtros
         var marca = document.getElementById('marca').value;
         var categoria = document.getElementById('categoria').value;
         var presentacion = document.getElementById('presentacion').value;
-        
-        // Hace una solicitud AJAX para obtener los productos actualizados
+
         var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
+        xmlhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 document.getElementById('producto').innerHTML = this.responseText;
             }
@@ -142,10 +338,18 @@ if ($proveedorID) {
         xmlhttp.open("GET", "obtener_productos.php?marca=" + marca + "&categoria=" + categoria + "&presentacion=" + presentacion, true);
         xmlhttp.send();
     }
-    </script>
-    EOD;
+</script>
+<script type="text/javascript" src="js/mdb.umd.min.js"></script>
+<script type="text/javascript"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js"></script>
+<script>$('#sortTable').DataTable({ order: [[0, 'des']] })</script>
+<script>
+    // Initialization for ES Users
+    import { Ripple, initMDB } from "mdb-ui-kit";
 
-} else {
-    echo "<p>No se proporcionó un ID de proveedor.</p>";
-}
-?>
+    initMDB({ Ripple });
+</script>
