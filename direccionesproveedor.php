@@ -111,7 +111,7 @@ $resultado = mysqli_stmt_get_result($statement);
                                         <th>Dirección</th>
                                         <th>Ciudad</th>
                                         <th>Código Postal</th>
-                                        <th id="tdcenter">Eliminar Dirección</th>
+                                        <th class="text-center">Eliminar Dirección</th>
                                     </tr>
                                 </thead>
                                 <?php
