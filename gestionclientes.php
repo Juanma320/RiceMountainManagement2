@@ -110,7 +110,7 @@ $resultClientes = mysqli_query($conexion, $queryClientes);
                                     echo "<td>{$rowCliente['NombreCoordinador']}</td>";
                                     echo "<td>{$rowCliente['NombreEncargado']}</td>";
                                     echo "<td><a class='text-center'><a data-mdb-ripple-init class='btn btn-warning' href='editarcliente.php?clienteID={$rowCliente['ClienteID']}'>Modificar</a></td>";
-                                    echo "<td><a class='text-center'><a data-mdb-ripple-init class='btn btn-primary' href='agregardireccion.php?clienteID={$rowCliente['ClienteID']}'>Agregar</a></td>";
+                                    echo "<td><a class='text-center'><a data-mdb-ripple-init class='btn btn-primary' href='direccionescliente.php?clienteID={$rowCliente['ClienteID']}'>Agregar</a></td>";
                                     echo "</tr>";
                                 }
                                 ?>
