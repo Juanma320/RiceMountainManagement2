@@ -1,11 +1,11 @@
 <?php
-include('includes/includes.php');
-include('includes/funciones.php');
+include ('includes/includes.php');
+include ('includes/funciones.php');
 
 // Verificar si se recibió un ID de venta y el nuevo estado
-if (isset($_POST['ventaID'], $_POST['estado'])) {
-    $ventaID = mysqli_real_escape_string($conexion, $_POST['ventaID']);
-    $estadoVentaID = mysqli_real_escape_string($conexion, $_POST['estado']);
+if (isset($_GET['ventaID'], $_GET['nuevoEstado'])) {
+    $ventaID = mysqli_real_escape_string($conexion, $_GET['ventaID']);
+    $estadoVentaID = mysqli_real_escape_string($conexion, $_GET['nuevoEstado']);
 
     // Actualizar el estado de la venta en la base de datos
     $queryActualizar = "UPDATE Ventas SET EstadoVentaID = $estadoVentaID WHERE VentaID = $ventaID";
@@ -17,11 +17,6 @@ if (isset($_POST['ventaID'], $_POST['estado'])) {
     } else {
         echo "Error al actualizar el estado de la venta.";
     }
-
-    // Redirigir a la página de información del cliente
-    header("Location: infocliente.php?clienteID={$_POST['clienteID']}");
-    exit();
 } else {
     echo "Error: No se recibió el ID de venta o el nuevo estado.";
 }
-?>

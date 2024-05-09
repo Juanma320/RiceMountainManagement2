@@ -165,7 +165,7 @@ if ($resultCompras && mysqli_num_rows($resultCompras) > 0) {
                                                         <td><?= $rowCompra['FechaCompra'] ?></td>
                                                         <td><?= $rowCompra['ValorCompra'] ?></td>
                                                         <td><?= $rowCompra['NombreEstado'] ?></td>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <?php if (!in_array($rowCompra['EstadoCompraID'], [2, 3, 4, 1])): ?>
                                                                 <a data-mdb-ripple-init class='btn btn-warning'
                                                                     href='agregar_detalle_compra.php?compraID=<?= $rowCompra['CompraID'] ?>&proveedorID=<?= $rowCompra['ProveedorID'] ?>'>Modificar</a>
@@ -173,9 +173,10 @@ if ($resultCompras && mysqli_num_rows($resultCompras) > 0) {
                                                                 No editable
                                                             <?php endif; ?>
                                                         </td>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <?php if ($rowCompra['EstadoCompraID'] == 1): ?>
-                                                                <select name='estado'
+                                                                <select name='estado' class="form-select bg-transparent"
+                                                                    data-mdb-select-init
                                                                     onchange='cambiarEstado(this.value, <?= $rowCompra['CompraID'] ?>)'>
                                                                     <option value='1'>Pedido Enviado</option>
                                                                     <option value='2'>Cancelar</option>
@@ -210,7 +211,7 @@ if ($resultCompras && mysqli_num_rows($resultCompras) > 0) {
                 </div>
             </div>
         </div>
-    </div>
+    </div><br>
 
 </body>
 
