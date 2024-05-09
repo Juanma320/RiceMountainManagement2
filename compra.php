@@ -25,7 +25,7 @@ if (isset($_GET['proveedorID'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modificar Precio</title>
+    <title>Agregar Compra</title>
 
     <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
@@ -114,8 +114,7 @@ if (isset($_GET['proveedorID'])) {
 
                                     <div class="d-flex flex-row-reverse justify-content-center">
                                         <div class="order-0 p-2">
-                                            <button data-mdb-ripple-init type="submit" class="btn btn-light"
-                                                onclick="return confirmacionActualizacion()">
+                                            <button data-mdb-ripple-init type="submit" class="btn btn-light">
                                                 <i class="far fa-calendar-plus pe-2"></i>Agregar Compra</button>
                                         </div>
                                         <div class="order-1 p-2">
