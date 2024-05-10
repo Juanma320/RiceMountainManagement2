@@ -118,7 +118,7 @@ if ($proveedorID) {
                                         <?= $rowCompra['FechaCompra'] ?>
                                     </p>
                                     <p><strong>Valor Total de la Compra:</strong><br>
-                                        <?= $valorTotalCompra ?>
+                                        <?= $valorTotalCompra ?> Cop
                                     </p>
                                 </div>
                             </div>
@@ -265,52 +265,53 @@ if ($proveedorID) {
                 </div>
             </div>
 
-            <div class="col-md-12">
-                <div class="container">
-                    <div class="card p-4">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h1>Productos agregados</h1>
-                                </div>
+        <?php else: ?>
+            <p>No se proporcionó un ID de proveedor.</p>
+        <?php endif; ?>
+
+        <div class="col-md-12">
+            <div class="container">
+                <div class="card p-4">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h1>Productos agregados</h1>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="row mt-4">
-                            <div class="col-md-12">
-                                <table class="table table-striped table-responsive rounded-9 overflow-hidden table-hover"
-                                    id="sortTable">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th>Nombre Producto</th>
-                                            <th>Marca</th>
-                                            <th>Presentación</th>
-                                            <th>Cantidad</th>
-                                            <th>Precio Unitario</th>
-                                            <th>Valor Total</th>
-                                            <th class="text-center">Eliminar Producto</th>
-                                        </tr>
-                                    </thead>
-                                    <?php while ($rowDetalleCompra = mysqli_fetch_assoc($resultDetallesCompra)): ?>
-                                        <?php $valorTotal = $rowDetalleCompra['Cantidad'] * $rowDetalleCompra['PrecioUnitario']; ?>
-                                        <tr>
-                                            <td><?= $rowDetalleCompra['NombreProducto'] ?></td>
-                                            <td><?= $rowDetalleCompra['NombreMarca'] ?></td>
-                                            <td><?= $rowDetalleCompra['NombrePresentacion'] ?></td>
-                                            <td><?= $rowDetalleCompra['Cantidad'] ?></td>
-                                            <td><?= $rowDetalleCompra['PrecioUnitario'] ?></td>
-                                            <td><?= $valorTotal ?></td>
-                                            <td class="text-center"><a data-mdb-ripple-init class='btn btn-danger'
-                                                    href='eliminar_detalle_compra.php?detalleID=<?= $rowDetalleCompra['DetalleCompraID'] ?>&compraID=<?= $compraID ?>&proveedorID=<?= $proveedorID ?>'
-                                                    onclick="return confirm('¿Estás seguro de eliminar este producto?');">
-                                                    <i class='fas fa-ban pe-2'></i>Eliminar producto</a>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                </table>
-                            <?php else: ?>
-                                <p>No se proporcionó un ID de proveedor.</p>
-                            <?php endif; ?>
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <table class="table table-striped table-responsive rounded-9 overflow-hidden table-hover"
+                                id="sortTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Nombre del Producto</th>
+                                        <th>Marca</th>
+                                        <th>Presentación</th>
+                                        <th>Cantidad</th>
+                                        <th>Valor Unitario</th>
+                                        <th>Valor Total</th>
+                                        <th class="text-center">Eliminar Producto</th>
+                                    </tr>
+                                </thead>
+                                <?php while ($rowDetalleCompra = mysqli_fetch_assoc($resultDetallesCompra)): ?>
+                                    <?php $valorTotal = $rowDetalleCompra['Cantidad'] * $rowDetalleCompra['PrecioUnitario']; ?>
+                                    <tr>
+                                        <td><?= $rowDetalleCompra['NombreProducto'] ?></td>
+                                        <td><?= $rowDetalleCompra['NombreMarca'] ?></td>
+                                        <td><?= $rowDetalleCompra['NombrePresentacion'] ?></td>
+                                        <td><?= $rowDetalleCompra['Cantidad'] ?></td>
+                                        <td><?= $rowDetalleCompra['PrecioUnitario'] ?></td>
+                                        <td><?= $valorTotal ?></td>
+                                        <td class="text-center"><a data-mdb-ripple-init class='btn btn-danger'
+                                                href='eliminar_detalle_compra.php?detalleID=<?= $rowDetalleCompra['DetalleCompraID'] ?>&compraID=<?= $compraID ?>&proveedorID=<?= $proveedorID ?>'
+                                                onclick="return confirm('¿Estás seguro de eliminar este producto?');">
+                                                <i class='fas fa-ban pe-2'></i>Eliminar producto</a>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </table>
                         </div>
                     </div>
                 </div>
