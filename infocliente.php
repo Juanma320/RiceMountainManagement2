@@ -3,8 +3,8 @@ include ('includes/includes.php');
 include ('includes/funciones.php');
 $row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
 // Verificar si el usuario tiene el rol de administrador
-if ($_SESSION['RolID'] != 1 && $_SESSION['RolID'] != 3) {
-    // Si no es administrador o financiero, redirigir a la página de inicio
+if ($_SESSION['RolID'] != 1 && $_SESSION['RolID'] != 2) {
+    // Si no es administrador o coordinador, redirigir a la página de inicio
     header('Location: login.php');
     exit();
 }
@@ -300,7 +300,7 @@ if (isset($_GET['clienteID'])) {
 </script>
 <script>
     function cancelarActualizacion() {
-        var url = <?php echo ($_SESSION['RolID'] == 3) ? "'gestion_cliente_coordinador.php'" : "'gestionclientes.php'"; ?>;
+        var url = <?php echo ($_SESSION['RolID'] == 1) ? "'gestionclientes.php'" : "'gestion_cliente_coordinador.php'"; ?>;
         window.location.href = url;
     }
 </script>

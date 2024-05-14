@@ -73,7 +73,7 @@ if (isset($_GET['clienteID'])) {
 
     <div class="mx-4 my-4">
         <a class="btn text-white btn-lg btn-floating" data-mdb-ripple-init style="background-color: #ac2bac;"
-            role="button" onclick="window.location.href='gestionclientes.php'">
+            role="button" onclick="return cancelarActualizacion()">
             <i class="fas fa-angle-left"></i>
         </a>
 
@@ -156,4 +156,10 @@ if (isset($_GET['clienteID'])) {
     import { Ripple, initMDB } from "mdb-ui-kit";
 
     initMDB({ Ripple });
+</script>
+<script>
+    function cancelarActualizacion() {
+        var url = <?php echo ($_SESSION['RolID'] == 1) ? "'gestionclientes.php'" : "'gestion_cliente_coordinador.php'"; ?>;
+        window.location.href = url;
+    }
 </script>
