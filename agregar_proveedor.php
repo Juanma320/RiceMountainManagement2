@@ -1,7 +1,7 @@
 <?php
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 
 // Verificar si el usuario tiene el rol de administrador
 if ($_SESSION['RolID'] != 1) {
@@ -13,31 +13,56 @@ if ($_SESSION['RolID'] != 1) {
 // Verificar si se envió el formulario
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validar y obtener datos del formulario
-    $nombre = $_POST['nombre'] ?? '';
-    $correo = $_POST['correo'] ?? '';
-    $telefono = $_POST['telefono'] ?? '';
-    $contacto = $_POST['contacto'] ?? '';
-    $telefonoContacto = $_POST['telefonoContacto'] ?? '';
-    $nit = $_POST['nit'] ?? '';
+    $nombre = mysqli_real_escape_string($conexion, $_POST['nombre']);
+    $nombre = strtoupper($nombre); // Convertir a mayúsculas
+    $correo = filter_var($_POST['correo'], FILTER_VALIDATE_EMAIL);
+    $telefono = mysqli_real_escape_string($conexion, $_POST['telefono']);
+    $contacto = mysqli_real_escape_string($conexion, $_POST['contacto']);
+    $telefonoContacto = mysqli_real_escape_string($conexion, $_POST['telefonoContacto']);
+    $nit = mysqli_real_escape_string($conexion, $_POST['nit']);
 
-    // Validar los campos según tus requisitos
-    if (empty($nombre) || empty($correo) || empty($telefono) || empty($contacto) || empty($telefonoContacto) || empty($nit)) {
-        $error = "Todos los campos son obligatorios.";
+    // Verificar si ya existe un proveedor con el mismo nombre, correo electrónico o NIT
+    $sql = "SELECT * FROM Proveedores WHERE NombreProveedor = '$nombre' OR CorreoElectronico = '$correo' OR NIT = '$nit' OR Telefono = '$telefono' OR TelefonoContacto = '$telefonoContacto'";
+    $result = mysqli_query($conexion, $sql);
+    if (!$correo) {
+        $error = 'El correo electrónico ingresado no es válido.';
     } else {
-        // Llamar a la función agregarProveedor
-        if (agregarProveedor($conexion, $nombre, $correo, $telefono, $contacto, $telefonoContacto, $nit)) {
-            $exito = "Proveedor agregado con éxito.";
+
+        if (mysqli_num_rows($result) > 0) {
+            $error = "Ya existe otro proveedor con el mismo ";
+
+            $camposRepetidos = [];
+            while ($err = mysqli_fetch_assoc($result)) {
+                if ($err['NombreProveedor'] === $nombre) {
+                    $camposRepetidos[] = "nombre";
+                }
+                if ($err['CorreoElectronico'] === $correo) {
+                    $camposRepetidos[] = "correo electrónico";
+                }
+                if ($err['NIT'] === $nit) {
+                    $camposRepetidos[] = "NIT";
+                }
+                if ($err['Telefono'] === $telefono) {
+                    $camposRepetidos[] = "teléfono";
+                }
+                if ($err['TelefonoContacto'] === $telefonoContacto) {
+                    $camposRepetidos[] = "teléfono de contacto";
+                }
+            }
+
+            $camposRepetidos = array_unique($camposRepetidos);
+            $error .= implode(", ", $camposRepetidos) . ".";
         } else {
-            $error = "Error al agregar el proveedor.";
+            // Llamar a la función agregarProveedor
+            $agregarProveedor = agregarProveedor($conexion, $nombre, $correo, $telefono, $contacto, $telefonoContacto, $nit);
+
+            // Verificar si se agregó el proveedor correctamente
+            if ($agregarProveedor === true) {
+                echo "<script>alert('Proveedor agregado exitosamente.');window.location.href='gestionproveedores.php';</script>";
+                exit();
+            }
         }
     }
-}
-
-// Mostrar mensajes de éxito o error
-if (isset($exito)) {
-    echo "<p>$exito</p>";
-} elseif (isset($error)) {
-    echo "<p>$error</p>";
 }
 ?>
 
@@ -98,6 +123,16 @@ if (isset($exito)) {
                                 <h3 class="text-center indigo-text font-bold py-4 fw-bold text-uppercase">
                                     <strong style="color: #fff">Agregar Proveedor</strong>
                                 </h3>
+                                <?php if (isset($error)): ?>
+                                    <div class="alert alert-danger" role="alert">
+                                        <?php echo $error; ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (isset($exito)): ?>
+                                    <div class="alert alert-success" role="alert">
+                                        <?php echo $exito; ?>
+                                    </div>
+                                <?php endif; ?>
                                 <div class="mb-4">
                                     <div class="d-flex flex-nowrap">
                                         <div class="order-0 col-md-1 d-flex align-items-center">
@@ -105,7 +140,8 @@ if (isset($exito)) {
                                         </div>
                                         <div data-mdb-input-init class="order-1 form-outline form-white">
                                             <input type="text" id="nombre" class="form-control form-control-lg"
-                                                name="nombre" required />
+                                                name="nombre" required
+                                                value="<?php echo isset($_POST['nombre']) ? htmlspecialchars($_POST['nombre']) : ''; ?>" />
                                             <label class="form-label" for="nombre">Nombre del proveedor</label>
                                         </div>
                                     </div>
@@ -117,7 +153,8 @@ if (isset($exito)) {
                                         </div>
                                         <div data-mdb-input-init class="order-1 form-outline form-white">
                                             <input type="email" id="correo" class="form-control form-control-lg"
-                                                name="correo" required />
+                                                name="correo" required
+                                                value="<?php echo isset($_POST['correo']) ? htmlspecialchars($_POST['correo']) : ''; ?>" />
                                             <label class="form-label" for="correo">Correo electrónico</label>
                                         </div>
                                     </div>
@@ -129,7 +166,9 @@ if (isset($exito)) {
                                         </div>
                                         <div data-mdb-input-init class="order-1 form-outline form-white">
                                             <input type="text" id="telefono" class="form-control form-control-lg"
-                                                name="telefono" required />
+                                                name="telefono" required
+                                                value="<?php echo isset($_POST['telefono']) ? htmlspecialchars($_POST['telefono']) : ''; ?>"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
                                             <label class="form-label" for="telefono">Teléfono</label>
                                         </div>
                                     </div>
@@ -141,7 +180,9 @@ if (isset($exito)) {
                                         </div>
                                         <div data-mdb-input-init class="order-1 form-outline form-white">
                                             <input type="text" id="contacto" class="form-control form-control-lg"
-                                                name="contacto" required />
+                                                name="contacto" required
+                                                value="<?php echo isset($_POST['contacto']) ? htmlspecialchars($_POST['contacto']) : ''; ?>"
+                                                oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/g, '');" />
                                             <label class="form-label" for="contacto">Nombre de contacto</label>
                                         </div>
                                     </div>
@@ -154,7 +195,9 @@ if (isset($exito)) {
                                         </div>
                                         <div data-mdb-input-init class="order-1 form-outline form-white">
                                             <input type="text" id="telefonoContacto"
-                                                class="form-control form-control-lg" name="telefonoContacto" required />
+                                                class="form-control form-control-lg" name="telefonoContacto" required
+                                                value="<?php echo isset($_POST['telefonoContacto']) ? htmlspecialchars($_POST['telefonoContacto']) : ''; ?>"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
                                             <label class="form-label" for="telefonoContacto">Teléfono de
                                                 contacto</label>
                                         </div>
@@ -166,12 +209,14 @@ if (isset($exito)) {
                                             <i class="far fa-address-card white-text" style="color: #fff"></i>
                                         </div>
                                         <div data-mdb-input-init class="order-1 form-outline form-white">
-                                            <input type="text" id="nit" class="form-control form-control-lg"
-                                                name="nit" />
+                                            <input type="text" id="nit" class="form-control form-control-lg" name="nit"
+                                                value="<?php echo isset($_POST['nit']) ? htmlspecialchars($_POST['nit']) : ''; ?>"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
                                             <label class="form-label" for="nit">NIT</label>
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="d-flex flex-row-reverse justify-content-center">
                                     <div class="order-0 p-2">
                                         <button data-mdb-ripple-init type="submit" class="btn btn-light">
@@ -191,7 +236,6 @@ if (isset($exito)) {
             </div>
         </div>
     </div>
-
 </body>
 
 </html>

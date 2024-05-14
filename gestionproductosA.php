@@ -1,7 +1,7 @@
 <?php
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 // Verificar si el usuario tiene el rol de administrador
 if ($_SESSION['RolID'] != 1) {
     // Si no es administrador, redirigir a la página de inicio
@@ -125,6 +125,13 @@ $resultadoCambiosPorcentaje = mysqli_query($conexion, $queryCambiosPorcentaje);
                             <a href="gestion_presentaciones.php" style="color: #F9F6EE">
                                 <button data-mdb-ripple-init type="button" class="btn btn-primary btn-rounded">
                                     <i class="fas fa-user pe-2"></i>Gestionar Presentaciones</button>
+                            </a>
+                        </li>
+                        </li>
+                        <li class="nav-item p-2">
+                        <button type="button" class="btn btn-danger btn-rounded" data-mdb-ripple-init>
+                            <a href="generar_reporte_producto.php" style="color: #F9F6EE">
+                                </i>Generar PDF</button>
                             </a>
                         </li>
                     </ul>

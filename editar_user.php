@@ -2,7 +2,7 @@
 include ('includes/includes.php');
 include ('includes/funciones.php');
 
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 
 // Verificar si el usuario tiene permiso para acceder a esta página
 if ($_SESSION['RolID'] != 1 && $_SESSION['RolID'] != 2 && $_SESSION['RolID'] != 3) {
@@ -11,48 +11,61 @@ if ($_SESSION['RolID'] != 1 && $_SESSION['RolID'] != 2 && $_SESSION['RolID'] != 
     exit();
 }
 
-// Obtener datos del usuario
-$usuario = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$usuarioID = $row['UsuarioID'];
 
-// Verificar si $usuario es un array válido y si tiene el índice 'UsuarioID'
-if (is_array($usuario) && isset($usuario['UsuarioID'])) {
-    // Continuar con el código para editar el perfil
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $nuevoCorreo = mysqli_real_escape_string($conexion, $_POST['nuevo_correo']);
-        $nuevoNombreUsuario = mysqli_real_escape_string($conexion, $_POST['nuevo_usuario']);
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['nombre_usuario'], $_POST['correo'])) {
+    $nombreUsuario = mysqli_real_escape_string($conexion, $_POST['nombre_usuario']);
+    $correo = filter_var($_POST['correo'], FILTER_VALIDATE_EMAIL);
+    $nombre = isset($_POST['nombre']) ? mb_strtoupper($_POST['nombre']) : '';
 
-        // Añadir la funcionalidad para modificar la imagen del perfil
-        $nuevaFotoPerfil = $usuario['FotoPerfil'];
-        if (isset($_FILES['nueva_foto_perfil']) && $_FILES['nueva_foto_perfil']['error'] == 0) {
-            $rutaTemporal = $_FILES['nueva_foto_perfil']['tmp_name'];
-            $nombreArchivo = basename($_FILES['nueva_foto_perfil']['name']);
-            $rutaDestino = 'src/assets/' . $nombreArchivo;
-            if (move_uploaded_file($rutaTemporal, $rutaDestino)) {
-                $nuevaFotoPerfil = $rutaDestino;
-            }
-        }
-
-        $query = "UPDATE Usuarios SET NombreUsuario = '$nuevoNombreUsuario', Correo = '$nuevoCorreo', FotoPerfil = '$nuevaFotoPerfil' WHERE UsuarioID = {$usuario['UsuarioID']}";
-        $resultado = mysqli_query($conexion, $query);
-
-        if ($resultado) {
-            header('Location: perfil.php');
-            exit();
-        } else {
-            $mensajeError = "Error al actualizar el perfil.";
+    // Añadir la funcionalidad para modificar la imagen del perfil
+    $nuevaFotoPerfil = $row['FotoPerfil'];
+    if (isset($_FILES['nueva_foto_perfil']) && $_FILES['nueva_foto_perfil']['error'] == 0) {
+        $rutaTemporal = $_FILES['nueva_foto_perfil']['tmp_name'];
+        $nombreArchivo = basename($_FILES['nueva_foto_perfil']['name']);
+        $rutaDestino = 'src/assets/' . $nombreArchivo;
+        if (move_uploaded_file($rutaTemporal, $rutaDestino)) {
+            $nuevaFotoPerfil = $rutaDestino;
         }
     }
-} else {
-    // Mostrar un mensaje de error y salir del script
-    echo "Error: Usuario no válido.";
-    exit();
+
+    $sql = "SELECT * FROM Usuarios WHERE (NombreUsuario = '$nombreUsuario' OR Correo = '$correo') AND UsuarioID != $usuarioID";
+    $result = mysqli_query($conexion, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+        // Mostrar mensaje de error
+        $mensajeError = "Ya existe otro cliente con el mismo ";
+
+        $camposRepetidos = [];
+        while ($err = mysqli_fetch_assoc($result)) {
+            if ($err['NombreUsuario'] === $nombreUsuario) {
+                $camposRepetidos[] = "nombre";
+            }
+            if ($err['Correo'] === $correo) {
+                $camposRepetidos[] = "correo electrónico";
+            }
+
+        }
+        $camposRepetidos = array_unique($camposRepetidos);
+        $mensajeError .= implode(", ", $camposRepetidos) . " remplaza los datos.";
+    } else {
+
+        if (!$correo) {
+            $mensajeError = 'El correo electrónico ingresado no es válido.';
+        } else {
+            $query = "UPDATE Usuarios SET NombreUsuario = '$nombreUsuario', Correo = '$correo', FotoPerfil = '$nuevaFotoPerfil', Nombre ='$nombre' WHERE UsuarioID = $usuarioID";
+            $resultado = mysqli_query($conexion, $query);
+
+            if ($resultado) {
+                header('Location: perfil.php');
+                exit();
+            } else {
+                $mensajeError = "Error al actualizar el perfil.";
+            }
+        }
+    }
 }
-
 ?>
-
-<?php if (isset($mensajeError)): ?>
-    <p style="color: red;"><?php echo $mensajeError; ?></p>
-<?php endif; ?>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -115,15 +128,20 @@ if (is_array($usuario) && isset($usuario['UsuarioID'])) {
                                 <h3 class="text-center indigo-text font-bold py-4 fw-bold text-uppercase">
                                     <strong style="color: #fff">Modificar Usuario</strong>
                                 </h3>
+                                <?php if (isset($mensajeError)): ?>
+                                    <div class="alert alert-danger" role="alert">
+                                        <?php echo $mensajeError; ?>
+                                    </div>
+                                <?php endif; ?>
                                 <div class="d-flex gap-2t mb-4">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="d-flex flex-nowrap">
                                             <!-- Muestra la imagen actual del perfil -->
                                             <?php
                                             // Verificar si $usuario es un array válido y si tiene el índice 'FotoPerfil'
-                                            if (is_array($usuario) && isset($usuario['FotoPerfil'])) {
+                                            if (is_array($row) && isset($row['FotoPerfil'])) {
                                                 // Mostrar la imagen de perfil
-                                                echo '<img id="imagen-perfil" src="' . $usuario['FotoPerfil'] . '" alt="Foto de perfil"
+                                                echo '<img id="imagen-perfil" src="' . $row['FotoPerfil'] . '" alt="Foto de perfil"
                                                 style="height: 80px; width: 80px; border-radius: 50%; object-fit: cover" >';
                                             } else {
                                                 // Mostrar un mensaje de error
@@ -141,7 +159,7 @@ if (is_array($usuario) && isset($usuario['UsuarioID'])) {
                                                 <!-- Campo para subir una nueva foto de perfil -->
                                                 <input type="file" id="nueva_foto_perfil"
                                                     class="form-control form-control-lg" name="nueva_foto_perfil"
-                                                    required />
+                                                    value="<?php echo $row['FotoPerfil']; ?>" />
                                             </div>
                                         </div>
                                     </div>
@@ -152,10 +170,11 @@ if (is_array($usuario) && isset($usuario['UsuarioID'])) {
                                             <i class="far fa-user prefix white-text" style="color: #fff"></i>
                                         </div>
                                         <div data-mdb-input-init class="order-1 form-outline form-white">
-                                            <input type="text" id="nuevo_usuario" class="form-control form-control-lg"
-                                                name="nuevo_usuario" value="<?php echo $usuario['NombreUsuario']; ?>"
-                                                required />
-                                            <label class="form-label" for="nuevo_usuario">Nuevo nombre de
+                                            <input type="text" id="nombre_usuario" class="form-control form-control-lg"
+                                                name="nombre_usuario" required
+                                                oninput="this.value = this.value.replace(/[^a-zA-Z0-9_.ñÑ-]/g, '');"
+                                                value="<?php echo $row['NombreUsuario']; ?>" />
+                                            <label class="form-label" for="nombre_usuario">Nuevo nombre de
                                                 usuario</label>
                                         </div>
                                     </div>
@@ -166,11 +185,26 @@ if (is_array($usuario) && isset($usuario['UsuarioID'])) {
                                             <i class="far fa-envelope prefix white-text" style="color: #fff"></i>
                                         </div>
                                         <div data-mdb-input-init class="order-1 form-outline form-white">
-                                            <input type="email" id="nuevo_correo" class="form-control form-control-lg"
-                                                name="nuevo_correo" value="<?php echo $usuario['Correo']; ?>"
-                                                required />
-                                            <label class="form-label" for="nuevo_correo">Nuevo correo
+                                            <input type="email" id="correo" class="form-control form-control-lg"
+                                                name="correo" value="<?php echo $row['Correo']; ?>" required />
+                                            <label class="form-label" for="correo">Nuevo correo
                                                 electrónico</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="d-flex flex-nowrap">
+                                        <div class="order-0 col-md-1 d-flex align-items-center">
+                                            <i class="far fa-user prefix white-text" style="color: #fff"></i>
+                                        </div>
+                                        <div data-mdb-input-init class="order-1 form-outline form-white">
+                                            <input type="text" id="nombre" class="form-control form-control-lg"
+                                                name="nombre" required value="<?php echo $row['Nombre']; ?>"
+                                                pattern="^\S+.*\s+\S+.*$" title="Debe ingresar un nombre y un apellido"
+                                                oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/g, ''); this.setCustomValidity('');"
+                                                oninvalid="this.setCustomValidity('Debe ingresar un nombre y un apellido');"
+                                                maxlength="100" />
+                                            <label class="form-label" for="nombre">Nombre</label>
                                         </div>
                                     </div>
                                 </div>

@@ -1,7 +1,7 @@
 <?php
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 // Verificar si el usuario tiene el rol de administrador
 if ($_SESSION['RolID'] != 1 && $_SESSION['RolID'] != 3) {
     // Si no es administrador o financiero, redirigir a la página de inicio
@@ -157,6 +157,7 @@ if ($resultCompras && mysqli_num_rows($resultCompras) > 0) {
                                                     <th>Estado</th>
                                                     <th class="text-center">Modificar</th>
                                                     <th class="text-center">Cambiar Estado</th>
+                                                    <th class="text-center">Reporte</th>
                                                 </tr>
                                             </thead>
                                             <?php foreach ($compras as $rowCompra): ?>
@@ -196,6 +197,13 @@ if ($resultCompras && mysqli_num_rows($resultCompras) > 0) {
                                                                     <option value='1'>Enviar pedido</option>
                                                                 </select>
                                                             <?php endif; ?>
+                                                        </td>
+                                                        <td>
+                                                            <a class="btn btn-danger btn-rounded"
+                                                                href="generar_reporte_compra.php?compraID=<?php echo $rowCompra['CompraID']; ?>"
+                                                                style="color: #F9F6EE">
+                                                                PDF
+                                                            </a>
                                                         </td>
                                                     </tr>
                                                 <?php endif; ?>

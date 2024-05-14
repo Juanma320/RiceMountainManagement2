@@ -1,7 +1,7 @@
 <?php
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 // Verificar si el usuario tiene el rol de administrador
 if ($_SESSION['RolID'] != 1 && $_SESSION['RolID'] != 2) {
     // Si no es administrador o coordinador, redirigir a la página de inicio
@@ -193,10 +193,10 @@ if (isset($_GET['clienteID'])) {
                                                     <th style="width:15%">Fecha de Entrega</th>
                                                     <th>Dirección</th>
                                                     <th>Total</th>
-                                                    <th>Usuario</th>
                                                     <th class="text-center">Estado</th>
                                                     <th class="text-center">Modificar</th>
                                                     <th class="text-center" style="width:20%">Cambiar Estado</th>
+                                                    <th class="text-center" style="width:20%">Reporte</th>
                                                 </tr>
                                             </thead>
                                             <?php foreach ($ventas as $rowVenta): ?>
@@ -205,7 +205,6 @@ if (isset($_GET['clienteID'])) {
                                                         <td><?= $rowVenta['FechaVenta'] ?></td>
                                                         <td><?= $rowVenta['Direccion'] ?></td>
                                                         <td><?= $rowVenta['TotalVenta'] ?></td>
-                                                        <td><?= $rowVenta['NombreUsuario'] ?></td>
                                                         <td><?= $rowVenta['NombreEstado'] ?></td>
                                                         <td class="text-center">
                                                             <?php if (!in_array($rowVenta['EstadoVentaID'], [4, 3, 5])): ?>
@@ -248,6 +247,13 @@ if (isset($_GET['clienteID'])) {
                                                                     <?= "Venta Cancelada" ?>
                                                                     <?php break;
                                                             endswitch; ?>
+                                                        </td>
+                                                        <td>
+                                                            <a class="btn btn-danger"
+                                                                href="generar_reporte_venta.php?ventaID=<?php echo $rowVenta['VentaID']; ?>"
+                                                                style="color: #F9F6EE">PDF
+                                                            </a>
+
                                                         </td>
                                                     </tr>
                                                 <?php endif; ?>

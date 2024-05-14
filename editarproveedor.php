@@ -1,7 +1,7 @@
 <?php
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 
 // Verificar si el usuario tiene el rol de administrador
 if ($_SESSION['RolID'] != 1) {
@@ -33,26 +33,65 @@ if (!$proveedor) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Obtener los datos del formulario
     $nombre = mysqli_real_escape_string($conexion, $_POST['nombre']);
+    $nombre = strtoupper($nombre);
     $telefono = mysqli_real_escape_string($conexion, $_POST['telefono']);
-    $correo = mysqli_real_escape_string($conexion, $_POST['correo']);
+    $correo = filter_var($_POST['correo'], FILTER_VALIDATE_EMAIL);
     $contacto = mysqli_real_escape_string($conexion, $_POST['contacto']);
-    $telefonoContacto = mysqli_real_escape_string($conexion, $_POST['telefono_contacto']);
+    $telefonocontacto = mysqli_real_escape_string($conexion, $_POST['TelefonoContacto']);
     $nit = mysqli_real_escape_string($conexion, $_POST['nit']);
 
-    // Validar y actualizar la información del proveedor en la base de datos
-    if (editarProveedor($conexion, $proveedorID, $nombre, $telefono, $correo, $contacto, $telefonoContacto, $nit)) {
-        // Redirigir a la página de gestión de proveedores después de la edición
-        header('Location: gestionproveedores.php');
-        exit();
-    } else {
-        // Mostrar un mensaje de error si la edición falla
-        $mensajeError = "Error al editar el proveedor.";
-    }
-}
+    $sql = "SELECT * FROM Proveedores WHERE (NombreProveedor = '$nombre' OR CorreoElectronico = '$correo' OR NIT = '$nit' OR Telefono = '$telefono' OR TelefonoContacto = '$telefonocontacto') AND ProveedorID != $proveedorID";
+    $result = mysqli_query($conexion, $sql);
 
-// Mostrar mensaje de error si existe
-if (isset($mensajeError)) {
-    echo "<p>{$mensajeError}</p>";
+    if (!$correo) {
+        $error = 'El correo electrónico ingresado no es válido.';
+    } else {
+        if (mysqli_num_rows($result) > 0) {
+            $error = "Ya existe otro proveedor con el mismo ";
+
+            $camposRepetidos = [];
+            while ($err = mysqli_fetch_assoc($result)) {
+                if ($err['NombreProveedor'] === $nombre) {
+                    $camposRepetidos[] = "nombre";
+                }
+                if ($err['CorreoElectronico'] === $correo) {
+                    $camposRepetidos[] = "correo electrónico";
+                }
+                if ($err['NIT'] === $nit) {
+                    $camposRepetidos[] = "NIT";
+                }
+                if ($err['Telefono'] === $telefono) {
+                    $camposRepetidos[] = "teléfono";
+                }
+                if ($err['TelefonoContacto'] === $telefonocontacto) {
+                    $camposRepetidos[] = "teléfono de contacto";
+                }
+            }
+
+            $camposRepetidos = array_unique($camposRepetidos);
+            $error .= implode(", ", $camposRepetidos) . ".";
+        } else {
+            // Llamar a la función agregarProveedor
+            $editarProveedor = editarProveedor($conexion, $proveedorID, $nombre, $telefono, $correo, $contacto, $telefonocontacto, $nit);
+
+            // Verificar si se agregó el proveedor correctamente
+            if ($editarProveedor === true) {
+                echo "<script>alert('Proveedor editado exitosamente.');window.location.href='gestionproveedores.php';</script>";
+                exit();
+            } else {
+                // Verificar si el error es debido a un duplicado
+                if (strpos($editarProveedor, 'trg_Unique_NombreProveedor') !== false) {
+                    $error = "Ya existe otro proveedor con el mismo nombre.";
+                } elseif (strpos($editarProveedor, 'trg_Unique_CorreoElectronico') !== false) {
+                    $error = "Ya existe otro proveedor con el mismo correo electrónico.";
+                } elseif (strpos($editarProveedor, 'trg_Unique_NIT') !== false) {
+                    $error = "Ya existe otro proveedor con el mismo NIT.";
+                } else {
+                    $error = "Error al agregar el proveedor.";
+                }
+            }
+        }
+    }
 }
 ?>
 
@@ -113,6 +152,16 @@ if (isset($mensajeError)) {
                                 <h3 class="text-center indigo-text font-bold py-4 fw-bold text-uppercase">
                                     <strong style="color: #fff">Editar Proveedor</strong>
                                 </h3>
+                                <?php if (isset($error)): ?>
+                                    <div class="alert alert-danger" role="alert">
+                                        <?php echo $error; ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (isset($exito)): ?>
+                                    <div class="alert alert-success" role="alert">
+                                        <?php echo $exito; ?>
+                                    </div>
+                                <?php endif; ?>
                                 <div class="mb-4">
                                     <div class="d-flex flex-nowrap">
                                         <div class="order-0 col-md-1 d-flex align-items-center">
@@ -148,9 +197,10 @@ if (isset($mensajeError)) {
                                         </div>
                                         <div data-mdb-input-init class="order-1 form-outline form-white">
                                             <input type="text" id="telefono" class="form-control form-control-lg"
-                                                name="telefono"
+                                                name="telefono" required
                                                 value="<?php echo htmlspecialchars($proveedor['Telefono']); ?>"
-                                                required>
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+
                                             <label class="form-label" for="telefono">Teléfono</label>
                                         </div>
                                     </div>
@@ -164,7 +214,8 @@ if (isset($mensajeError)) {
                                             <input type="text" id="contacto" class="form-control form-control-lg"
                                                 name="contacto" required
                                                 value="<?php echo htmlspecialchars($proveedor['Contacto']); ?>"
-                                                required>
+                                                oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/g, '');" />
+
                                             <label class="form-label" for="contacto">Nombre de contacto</label>
                                         </div>
                                     </div>
@@ -176,10 +227,11 @@ if (isset($mensajeError)) {
                                                 style="color: #fff"></i>
                                         </div>
                                         <div data-mdb-input-init class="order-1 form-outline form-white">
-                                            <input type="text" id="telefonoContacto"
-                                                class="form-control form-control-lg" name="telefonoContacto"
+                                            <input type="text" id="TelefonoContacto"
+                                                class="form-control form-control-lg" name="TelefonoContacto" required
                                                 value="<?php echo htmlspecialchars($proveedor['TelefonoContacto']); ?>"
-                                                required>
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+
                                             <label class="form-label" for="telefonoContacto">Teléfono de
                                                 contacto</label>
                                         </div>
@@ -192,7 +244,8 @@ if (isset($mensajeError)) {
                                         </div>
                                         <div data-mdb-input-init class="order-1 form-outline form-white">
                                             <input type="text" id="nit" class="form-control form-control-lg" name="nit"
-                                                value="<?php echo htmlspecialchars($proveedor['NIT']); ?>" required>
+                                                required value="<?php echo htmlspecialchars($proveedor['NIT']); ?>"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
                                             <label class="form-label" for="nit">NIT</label>
                                         </div>
                                     </div>

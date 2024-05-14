@@ -1,7 +1,7 @@
 <?php
 include('includes/includes.php');
 include('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 $proveedorID = $_POST['proveedorID'];
 
 // Verificar si el usuario tiene el rol de administrador

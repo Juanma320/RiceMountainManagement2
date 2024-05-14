@@ -1,8 +1,8 @@
 <?php
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
-$rolUsuario = obtenerRolUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
+$rolUsuario = obtenerRolUsuario($conexion, $_SESSION['UsuarioID']);
 // Verificar si el usuario tiene el rol de administrador
 if ($_SESSION['RolID'] != 1) {
     header('Location: login.php');

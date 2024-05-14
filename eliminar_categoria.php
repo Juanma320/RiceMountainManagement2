@@ -2,7 +2,7 @@
 include ('includes/includes.php');
 include ('includes/funciones.php');
 
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 
 if ($_SESSION['RolID'] != 1) {
     header('Location: login.php');

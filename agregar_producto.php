@@ -1,7 +1,7 @@
 <?php
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 // Verificar si el usuario tiene el rol de administrador
 if ($_SESSION['RolID'] != 1) {
     // Si no es administrador, redirigir a la página de inicio
@@ -18,45 +18,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $precioUnitario = mysqli_real_escape_string($conexion, $_POST['precio_unitario']);
     $porcentajeBeneficio = mysqli_real_escape_string($conexion, $_POST['porcentaje_beneficio']);
 
+    $sql = "SELECT * FROM Productos WHERE NombreProducto = '$nombreProducto' AND CategoriaID = '$categoriaID' AND PresentacionID = '$presentacionID' AND MarcaID = '$marcaID'";
+    $result = mysqli_query($conexion, $sql);
+
     // Validar que el porcentaje de beneficio esté entre 0 y 100
-    if ($porcentajeBeneficio < 0 || $porcentajeBeneficio > 100) {
-        echo "<p>El porcentaje de beneficio debe estar entre 0 y 100.</p>";
+    if (mysqli_num_rows($result) > 0) {
+        $error = "Este producto ya existe ";
     } else {
-        // Obtener el ID del usuario que está creando el producto
-        $creador = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
-        $creadorID = $creador['UsuarioID'];
+        if ($porcentajeBeneficio < 0 || $porcentajeBeneficio > 100) {
+            echo "<p>El porcentaje de beneficio debe estar entre 0 y 100.</p>";
+        } else {
+            // Obtener el ID del usuario que está creando el producto
+            $creador = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
+            $creadorID = $creador['UsuarioID'];
 
-        // Obtener la fecha y hora actual
-        $fechaCreacion = date('Y-m-d H:i:s');
+            // Obtener la fecha y hora actual
+            $fechaCreacion = date('Y-m-d H:i:s');
 
-        // Insertar el producto en la base de datos
-        $query = "INSERT INTO Productos (NombreProducto, FinancieroID, FechaCreacion, CategoriaID, PresentacionID, MarcaID) 
-                  VALUES ('$nombreProducto', '$creadorID', '$fechaCreacion', '$categoriaID', '$presentacionID', '$marcaID')";
-        $resultado = mysqli_query($conexion, $query);
+            // Insertar el producto en la base de datos
+            $query = "INSERT INTO Productos (NombreProducto, FinancieroID, FechaCreacion, CategoriaID, PresentacionID, MarcaID) 
+                  VALUES ( Upper ('$nombreProducto'), '$creadorID', '$fechaCreacion', '$categoriaID', '$presentacionID', '$marcaID')";
+            $resultado = mysqli_query($conexion, $query);
 
-        if ($resultado) {
-            // Insertar dato en Inventario_Producto
-            $productoID = mysqli_insert_id($conexion); // Obtener el ID del producto recién insertado
-            $query_inventario = "INSERT INTO Inventario_Producto (ProductoID, FechaInicial, CantidadInicial, CantidadComprada, CantidadVendida) 
+            if ($resultado) {
+                // Insertar dato en Inventario_Producto
+                $productoID = mysqli_insert_id($conexion); // Obtener el ID del producto recién insertado
+                $query_inventario = "INSERT INTO Inventario_Producto (ProductoID, FechaInicial, CantidadInicial, CantidadComprada, CantidadVendida) 
                                  VALUES ('$productoID', '$fechaCreacion', '0', '0', '0')";
-            $resultado_inventario = mysqli_query($conexion, $query_inventario);
+                $resultado_inventario = mysqli_query($conexion, $query_inventario);
 
-            if ($resultado_inventario) {
-                // Insertar dato en precio_compras
-                $query_precio = "INSERT INTO precio_compras (ProductoID, PrecioUnitario, PorcentajeBeneficio, FechaInicio) 
+                if ($resultado_inventario) {
+                    // Insertar dato en precio_compras
+                    $query_precio = "INSERT INTO precio_compras (ProductoID, PrecioUnitario, PorcentajeBeneficio, FechaInicio) 
                                  VALUES ('$productoID', '$precioUnitario', '$porcentajeBeneficio', '$fechaCreacion')";
-                $resultado_precio = mysqli_query($conexion, $query_precio);
+                    $resultado_precio = mysqli_query($conexion, $query_precio);
 
-                if ($resultado_precio) {
-                    echo "<p>Producto agregado con éxito.</p>";
+                    if ($resultado_precio) {
+                        echo "<script>alert('Producto agregado exitosamente.'); window.location.href='gestionproductosA.php';</script>";
+                    } else {
+                        echo "<p>Error al agregar el precio del producto.</p>";
+                    }
                 } else {
-                    echo "<p>Error al agregar el precio del producto.</p>";
+                    echo "<p>Error al agregar producto en el inventario.</p>";
                 }
             } else {
-                echo "<p>Error al agregar producto en el inventario.</p>";
+                echo "<p>Error al agregar producto.</p>";
             }
-        } else {
-            echo "<p>Error al agregar producto.</p>";
         }
     }
 }
@@ -130,6 +137,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <h3 class="text-center indigo-text font-bold py-4 fw-bold text-uppercase">
                                     <strong style="color: #fff">Agregar Producto</strong>
                                 </h3>
+                                <?php if (isset($error)): ?>
+                                    <div class="alert alert-danger" role="alert">
+                                        <?php echo $error; ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (isset($exito)): ?>
+                                    <div class="alert alert-success" role="alert">
+                                        <?php echo $exito; ?>
+                                    </div>
+                                <?php endif; ?>
                                 <div class="mb-4">
                                     <div class="d-flex flex-nowrap">
                                         <div class="order-0 col-md-1 d-flex align-items-center">

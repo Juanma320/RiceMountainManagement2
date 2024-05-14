@@ -12,7 +12,7 @@ if ($_SESSION['RolID'] != 2) {
 }
 
 // Obtener datos del usuario
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 
 ?>
 
@@ -74,7 +74,7 @@ $row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
 
         <div class="row mt-4">
             <div class="col-md-12">
-                <h2>Fechas de actividad</h2>
+                <h2>Ventas en proceso</h2>
                 <table class="table table-striped table-responsive rounded-9 overflow-hidden table-hover"
                     id="sortTable">
                     <thead class="table-dark">

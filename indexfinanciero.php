@@ -12,7 +12,7 @@ if ($_SESSION['RolID'] != 3) {
 }
 
 // Obtener datos del usuario
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 
 // Consulta para obtener las compras con los estados 1 y 5 (Pedido Enviado y Pedido Creado)
 $queryCompras = "SELECT c.*, CONCAT(u.NombreUsuario) as NombreUsuario, p.NombreProveedor, r.NombreRol

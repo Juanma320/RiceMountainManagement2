@@ -1,7 +1,7 @@
 <?php
 include('includes/includes.php');
 include('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 
 // Verificar si se recibió un ID de venta y un ID de cliente
 if (isset($_POST['ventaID']) && isset($_POST['clienteID'])) {

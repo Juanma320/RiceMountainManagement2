@@ -1,32 +1,73 @@
 <?php
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
-// Verificar si el usuario tiene el rol de administrador
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 if ($_SESSION['RolID'] != 1) {
-    // Si no es administrador, redirigir a la página de inicio
+    // Si no tiene permiso de administrador, redirigir a la página de inicio
     header('Location: login.php');
     exit();
 }
+// Variables para mantener los valores introducidos
+$nombreUsuarioValue = isset($_POST['nombre_usuario']) ? $_POST['nombre_usuario'] : '';
+$documentoIdentidadValue = isset($_POST['documento_identidad']) ? $_POST['documento_identidad'] : '';
+$correoValue = isset($_POST['correo']) ? $_POST['correo'] : '';
+
+
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Obtener datos del formulario
     $nombreUsuario = mysqli_real_escape_string($conexion, $_POST['nombre_usuario']);
     $contra = mysqli_real_escape_string($conexion, $_POST['contra']);
     $documentoIdentidad = mysqli_real_escape_string($conexion, $_POST['documento_identidad']);
-    $correo = mysqli_real_escape_string($conexion, $_POST['correo']);
+    $correo = filter_var($_POST['correo'], FILTER_VALIDATE_EMAIL);
+    $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : '';
+    $apellido = isset($_POST['apellido']) ? $_POST['apellido'] : '';
 
-    // Hashear la contraseña
-    $hashedContra = password_hash($contra, PASSWORD_DEFAULT);
 
-    // Insertar nuevo usuario como coordinador
-    $query = "INSERT INTO Usuarios (NombreUsuario, Contra, DocumentoIdentidad, RolID, Correo, Activo)
-              VALUES ('$nombreUsuario', '$hashedContra', '$documentoIdentidad', 2, '$correo', 1)";
-    $resultado = mysqli_query($conexion, $query);
-
-    if ($resultado) {
-        echo "<p>Coordinador agregado con éxito.</p>";
+    // Combinar nombre y apellido
+    $nombreCompleto = strtoupper($nombre . ' ' . $apellido);
+    if (!$correo) {
+        $mensajeError = 'El correo electrónico ingresado no es válido.';
     } else {
-        echo "<p>Error al agregar coordinador.</p>";
+        // Verificar duplicados antes de la inserción
+        $query_verificar_duplicados = "SELECT NombreUsuario, Correo, DocumentoIdentidad FROM Usuarios WHERE NombreUsuario = '$nombreUsuario' OR Correo = '$correo' OR DocumentoIdentidad = '$documentoIdentidad'";
+        $resultado_verificar_duplicados = mysqli_query($conexion, $query_verificar_duplicados);
+
+        if (mysqli_num_rows($resultado_verificar_duplicados) > 0) {
+            $mensajeError = 'No se puede agregar el coordinador, alguno de los datos proporcionados ya están en uso.';
+
+            $camposRepetidos = [];
+            while ($row_verificar_duplicados = mysqli_fetch_assoc($resultado_verificar_duplicados)) {
+                if ($row_verificar_duplicados['NombreUsuario'] === $nombreUsuario) {
+                    $camposRepetidos[] = "nombre de usuario";
+                }
+                if ($row_verificar_duplicados['Correo'] === $correo) {
+                    $camposRepetidos[] = "correo electrónico";
+                }
+                if ($row_verificar_duplicados['DocumentoIdentidad'] === $documentoIdentidad) {
+                    $camposRepetidos[] = "documento de identidad";
+                }
+            }
+
+            $camposRepetidos = array_unique($camposRepetidos);
+            $mensajeError .= ' Los campos repetidos son: ' . implode(", ", $camposRepetidos) . '.';
+        } else {
+            try {
+                // Insertar nuevo usuario como coordinador
+                $hashedContra = password_hash($contra, PASSWORD_DEFAULT);
+                $query = "INSERT INTO Usuarios (NombreUsuario, Contra, DocumentoIdentidad, RolID, Correo, Activo, Nombre)
+                      VALUES ('$nombreUsuario', '$hashedContra', '$documentoIdentidad', 2, '$correo', 1, '$nombreCompleto')";
+                $resultado = mysqli_query($conexion, $query);
+
+                if ($resultado) {
+                    echo "<script>alert('Coordinador agregado exitosamente.'); window.location.href='gestioncoordinadores.php';</script>";
+                } else {
+                    throw new Exception('Error al agregar coordinador.');
+                }
+            } catch (Exception $e) {
+                $mensajeError = $e->getMessage();
+            }
+        }
     }
 }
 ?>
@@ -88,6 +129,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <h3 class="text-center indigo-text font-bold py-4 fw-bold text-uppercase">
                                     <strong style="color: #fff">Agregar Coordinador</strong>
                                 </h3>
+                                <?php if (isset($mensajeError)): ?>
+                                    <div class="alert alert-danger" role="alert">
+                                        <?php echo $mensajeError; ?>
+                                    </div>
+                                <?php endif; ?>
                                 <div class="mb-4">
                                     <div class="d-flex flex-nowrap">
                                         <div class="order-0 col-md-1 d-flex align-items-center">
@@ -95,60 +141,95 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         </div>
                                         <div data-mdb-input-init class="order-1 form-outline form-white">
                                             <input type="text" id="nombre_usuario" class="form-control form-control-lg"
-                                                name="nombre_usuario" required />
+                                                name="nombre_usuario" required
+                                                oninput="this.value = this.value.replace(/[^a-zA-Z0-9_.ñÑ-]/g, '');"
+                                                value="<?php echo htmlspecialchars($nombreUsuarioValue); ?>" />
                                             <label class="form-label" for="nombre_usuario">Nombre de usuario</label>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="mb-4">
-                                    <div class="d-flex flex-nowrap">
-                                        <div class="order-0 col-md-1 d-flex align-items-center">
-                                            <i class="fa-regular fa-eye-slash white-text" style="color: #fff"></i>
-                                        </div>
-                                        <div data-mdb-input-init class="order-1 form-outline form-white">
-                                            <input type="password" id="contra" class="form-control form-control-lg"
-                                                name="contra" required />
-                                            <label class="form-label" for="contra">Contraseña</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mb-4">
-                                    <div class="d-flex flex-nowrap">
-                                        <div class="order-0 col-md-1 d-flex align-items-center">
-                                            <i class="far fa-address-card white-text" style="color: #fff"></i>
-                                        </div>
-                                        <div data-mdb-input-init class="order-1 form-outline form-white">
-                                            <input type="text" id="documento_identidad"
-                                                class="form-control form-control-lg" name="documento_identidad" />
-                                            <label class="form-label" for="documento_identidad">Documento de
-                                                identidad</label>
+                                    <div class="mb-4">
+                                        <div class="d-flex flex-nowrap">
+                                            <div class="order-0 col-md-1 d-flex align-items-center">
+                                                <i class="far fa-user white-text" style="color: #fff"></i>
+                                            </div>
+                                            <div data-mdb-input-init class="order-1 form-outline form-white">
+                                                <input type="text" id="nombre" class="form-control form-control-lg"
+                                                    name="nombre" required
+                                                    oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/g, '');"
+                                                    value="<?php echo isset($_POST['nombre']) ? htmlspecialchars($_POST['nombre']) : ''; ?>" />
+                                                <label class="form-label" for="nombre">Nombres</label>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="mb-4">
-                                    <div class="d-flex flex-nowrap">
-                                        <div class="order-0 col-md-1 d-flex align-items-center">
-                                            <i class="far fa-envelope prefix white-text" style="color: #fff"></i>
+                                    <div class="mb-4">
+                                        <div class="d-flex flex-nowrap">
+                                            <div class="order-0 col-md-1 d-flex align-items-center">
+                                                <i class="far fa-user white-text" style="color: #fff"></i>
+                                            </div>
+                                            <div data-mdb-input-init class="order-1 form-outline form-white">
+                                                <input type="text" id="apellido" class="form-control form-control-lg"
+                                                    name="apellido" required
+                                                    oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/g, '');"
+                                                    value="<?php echo isset($_POST['apellido']) ? htmlspecialchars($_POST['apellido']) : ''; ?>" />
+                                                <label class="form-label" for="apellido">Apellidos</label>
+                                            </div>
                                         </div>
-                                        <div data-mdb-input-init class="order-1 form-outline form-white">
-                                            <input type="email" id="correo" class="form-control form-control-lg"
-                                                name="correo" required />
-                                            <label class="form-label" for="correo">Correo electrónico</label>
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="d-flex flex-nowrap">
+                                            <div class="order-0 col-md-1 d-flex align-items-center">
+                                                <i class="fa-regular fa-eye-slash white-text" style="color: #fff"></i>
+                                            </div>
+                                            <div data-mdb-input-init class="order-1 form-outline form-white">
+                                                <input type="password" id="contra" class="form-control form-control-lg"
+                                                    name="contra" required />
+                                                <label class="form-label" for="contra">Contraseña</label>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="d-flex flex-row-reverse justify-content-center">
-                                    <div class="order-0 p-2">
-                                        <button data-mdb-ripple-init type="submit" class="btn btn-light">
-                                            <i class="fas fa-user-plus pe-2"></i>Agregar Coordinador</button>
+                                    <div class="mb-4">
+                                        <div class="d-flex flex-nowrap">
+                                            <div class="order-0 col-md-1 d-flex align-items-center">
+                                                <i class="far fa-address-card white-text" style="color: #fff"></i>
+                                            </div>
+                                            <div data-mdb-input-init class="order-1 form-outline form-white">
+                                                <input type="text" id="documento_identidad"
+                                                    class="form-control form-control-lg" name="documento_identidad"
+                                                    required
+                                                    value="<?php echo htmlspecialchars($documentoIdentidadValue); ?>"
+                                                    oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+                                                <label class="form-label" for="documento_identidad">Documento de
+                                                    identidad</label>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="order-1 p-2">
-                                        <button data-mdb-ripple-init type="button" class="btn btn-danger"
-                                            onclick="window.location.href='gestioncoordinadores.php'">
-                                            <i class="fas fa-ban pe-2"></i>Cancelar
-                                        </button>
+                                    <div class="mb-4">
+                                        <div class="d-flex flex-nowrap">
+                                            <div class="order-0 col-md-1 d-flex align-items-center">
+                                                <i class="far fa-envelope prefix white-text" style="color: #fff"></i>
+                                            </div>
+                                            <div data-mdb-input-init class="order-1 form-outline form-white">
+                                                <input type="email" id="correo" class="form-control form-control-lg"
+                                                    name="correo" required
+                                                    value="<?php echo htmlspecialchars($correoValue); ?>" />
+                                                <label class="form-label" for="correo">Correo electrónico</label>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                    <div class="d-flex flex-row-reverse justify-content-center">
+                                        <div class="order-0 p-2">
+                                            <button data-mdb-ripple-init type="submit" class="btn btn-light">
+                                                <i class="fas fa-user-plus pe-2"></i>Agregar Coordinador</button>
+                                        </div>
+                                        <div class="order-1 p-2">
+                                            <button data-mdb-ripple-init type="button" class="btn btn-danger"
+                                                onclick="window.location.href='gestioncoordinadores.php'">
+                                                <i class="fas fa-ban pe-2"></i>Cancelar
+                                            </button>
+                                        </div>
+                                    </div>
                             </form>
                         </div>
                     </div>

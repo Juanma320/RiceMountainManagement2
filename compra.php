@@ -2,7 +2,7 @@
 // Incluir el archivo de conexión a la base de datos
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 
 // Verificar si se recibió un ID de proveedor
 if (isset($_GET['proveedorID'])) {

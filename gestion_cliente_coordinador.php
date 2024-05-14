@@ -1,7 +1,7 @@
 <?php
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 // Verificar si el usuario tiene el rol de coordinador
 if ($_SESSION['RolID'] != 2) {
     header("Location: login.php");

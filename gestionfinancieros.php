@@ -1,7 +1,7 @@
 <?php
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 // Verificar si el usuario tiene el rol de administrador
 if ($_SESSION['RolID'] != 1) {
     // Si no es administrador, redirigir a la página de inicio
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 // Obtener información de usuarios financieros
-$query = 'SELECT U.UsuarioID, U.NombreUsuario, U.Correo, U.DocumentoIdentidad, U.Activo, U.FechaUltimaActividad, COUNT(P.ProductoID) AS CantidadProductos
+$query = 'SELECT U.UsuarioID, U.Nombre, U.NombreUsuario, U.Correo, U.DocumentoIdentidad, U.Activo, U.FechaUltimaActividad, COUNT(P.ProductoID) AS CantidadProductos
           FROM Usuarios U
           LEFT JOIN Productos P ON U.UsuarioID = P.FinancieroID
           WHERE U.RolID = 3
@@ -112,6 +112,7 @@ $resultado = mysqli_query($conexion, $query);
                                 <thead class="table-dark">
                                     <tr>
                                         <th>Nombre</th>
+                                        <th>Nombre de usuario</th>
                                         <th>Correo</th>
                                         <th>Documento Identidad</th>
                                         <th>Productos creados</th>
@@ -122,6 +123,7 @@ $resultado = mysqli_query($conexion, $query);
                                 // Iterar sobre los resultados y mostrar en la tabla
                                 while ($row = mysqli_fetch_assoc($resultado)) {
                                     echo "<tr>";
+                                    echo "<td>{$row['Nombre']}</td>";
                                     echo "<td>{$row['NombreUsuario']}</td>";
                                     echo "<td>{$row['Correo']}</td>";
                                     echo "<td>{$row['DocumentoIdentidad']}</td>";

@@ -1,5 +1,3 @@
-// scripts.js
-
 function mostrarModalAgregarProducto() {
     document.getElementById('agregarProductoModal').style.display = 'block';
 }
@@ -10,7 +8,7 @@ function cerrarModalAgregarProducto() {
 
 function cargarProductosDisponibles() {
     var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             var selectProductos = document.getElementById('productosDisponibles');
             selectProductos.innerHTML = this.responseText;
@@ -25,7 +23,7 @@ function agregarProducto() {
     var formData = new FormData(form);
 
     var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             // Recargar la página para mostrar el producto recién agregado
             location.reload();
@@ -39,7 +37,7 @@ function retirarProducto(productoID, proveedorID) {
     var confirmacion = confirm("¿Estás seguro de retirar este producto?");
     if (confirmacion) {
         var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
+        xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
                 location.reload();
             }
@@ -48,9 +46,6 @@ function retirarProducto(productoID, proveedorID) {
         xhttp.send();
     }
 }
-
-
-
 
 // Función para obtener un parámetro de la URL por nombre
 function obtenerParametroURL(nombre) {
@@ -63,5 +58,3 @@ function confirmarCambiarEstado(proveedorID) {
         window.location.href = `cambiar_estado_proveedor.php?proveedor_id=${proveedorID}`;
     }
 }
-
-

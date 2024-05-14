@@ -1,8 +1,12 @@
 <?php
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
-
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
+if ($_SESSION['RolID'] != 1) {
+    // Si no tiene permiso de administrador, redirigir a la página de inicio
+    header('Location: login.php');
+    exit();
+}
 // Verificar si se recibió un ID de cliente
 if (isset($_GET['clienteID'])) {
     $clienteID = mysqli_real_escape_string($conexion, $_GET['clienteID']);
@@ -27,39 +31,75 @@ if (isset($_GET['clienteID'])) {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Recuperar los datos del formulario
             $nombreCliente = mysqli_real_escape_string($conexion, $_POST['nombreCliente']);
-            $correoElectronico = mysqli_real_escape_string($conexion, $_POST['correoElectronico']);
+            $nombreCliente = strtoupper($nombreCliente);
+            $correoElectronico = filter_var($_POST['correoElectronico'], FILTER_VALIDATE_EMAIL);
             $telefono = mysqli_real_escape_string($conexion, $_POST['telefono']);
             $nit = mysqli_real_escape_string($conexion, $_POST['nit']);
             $telefonoEncargado = mysqli_real_escape_string($conexion, $_POST['telefonoEncargado']);
             $coordinadorID = ($_POST['coordinadorID'] !== 'null') ? mysqli_real_escape_string($conexion, $_POST['coordinadorID']) : 'NULL';
             $nombreEncargado = mysqli_real_escape_string($conexion, $_POST['nombreEncargado']);
 
-            // Actualizar los datos del cliente en la base de datos
-            $queryUpdate = "UPDATE Clientes SET
-                            NombreCliente = '$nombreCliente',
-                            CorreoElectronico = '$correoElectronico',
-                            Telefono = '$telefono',
-                            NIT = '$nit',
-                            TelefonoEncargado = '$telefonoEncargado',
-                            CoordinadorID = $coordinadorID,
-                            NombreEncargado = '$nombreEncargado'
-                            WHERE ClienteID = $clienteID";
+            // Consulta para verificar si ya existe un cliente con los mismos datos
+            $sql = "SELECT * FROM Clientes WHERE (NombreCliente = '$nombreCliente' OR CorreoElectronico = '$correoElectronico' OR NIT = '$nit' OR Telefono = '$telefono' OR TelefonoEncargado = '$telefonoEncargado') AND ClienteID != $clienteID";
+            $result = mysqli_query($conexion, $sql);
 
-            $resultadoUpdate = mysqli_query($conexion, $queryUpdate);
+            // Verificar si hay errores
+            if (mysqli_num_rows($result) > 0) {
+                // Mostrar mensaje de error
+                $error = "Ya existe otro cliente con el mismo ";
 
-            if ($resultadoUpdate) {
-                header('Location: gestionclientes.php');
-                exit();
+                $camposRepetidos = [];
+                if (mysqli_num_rows($result) > 0) {
+                    // Mostrar mensaje de error
+                    $error = "Ya existe otro cliente con el mismo ";
+                
+                    $camposRepetidos = [];
+                    while ($err = mysqli_fetch_assoc($result)) {
+                        if ($err['NombreCliente'] === $nombreCliente) {
+                            $camposRepetidos[] = "nombre";
+                        }
+                        if ($err['CorreoElectronico'] === $correoElectronico) {
+                            $camposRepetidos[] = "correo electrónico";
+                        }
+                        if ($err['NIT'] === $nit) {
+                            $camposRepetidos[] = "NIT";
+                        }
+                        if ($err['Telefono'] === $telefono) {
+                            $camposRepetidos[] = "teléfono";
+                        }
+                        if ($err['TelefonoEncargado'] === $telefonoEncargado) {
+                            $camposRepetidos[] = "teléfono del encargado";
+                        }
+                    }                              
+                $camposRepetidos = array_unique($camposRepetidos);
+                $error .= implode(", ", $camposRepetidos) . " remplaza los datos.";
             } else {
-                $error = "Error al actualizar el cliente.";
+                // Actualizar los datos del cliente en la base de datos
+                $queryUpdate = "UPDATE Clientes SET
+        NombreCliente = '$nombreCliente',
+        CorreoElectronico = '$correoElectronico',
+        Telefono = '$telefono',
+        NIT = '$nit',
+        TelefonoEncargado = '$telefonoEncargado',
+        CoordinadorID = $coordinadorID,
+        NombreEncargado = '$nombreEncargado'
+        WHERE ClienteID = $clienteID";
+
+                $resultadoUpdate = mysqli_query($conexion, $queryUpdate);
+
+                if ($resultadoUpdate) {
+                    header('Location: gestionclientes.php');
+                    exit();
+                } else {
+                    $error = "Error al actualizar el cliente.";
+                }
             }
+
         }
-    } else {
-        $error = "No se encontró información para el cliente con ID $clienteID.";
     }
-} else {
-    $error = "No se proporcionó un ID de cliente.";
 }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -133,6 +173,16 @@ if (isset($_GET['clienteID'])) {
                                 <h3 class="text-center indigo-text font-bold py-4 fw-bold text-uppercase">
                                     <strong style="color: #fff">Modificar Cliente</strong>
                                 </h3>
+                                <?php if (isset($error)): ?>
+                                    <div class="alert alert-danger" role="alert">
+                                        <?php echo $error; ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (isset($exito)): ?>
+                                    <div class="alert alert-success" role="alert">
+                                        <?php echo $exito; ?>
+                                    </div>
+                                <?php endif; ?>
                                 <div class="mb-4">
                                     <div class="d-flex flex-nowrap">
                                         <div class="order-0 col-md-1 d-flex align-items-center">

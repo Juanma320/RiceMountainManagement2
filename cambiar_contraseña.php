@@ -2,7 +2,7 @@
 include ('includes/includes.php');
 include ('includes/funciones.php');
 
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 
 // Verificar si el usuario tiene permiso para acceder a esta página
 if ($_SESSION['RolID'] != 1 && $_SESSION['RolID'] != 2 && $_SESSION['RolID'] != 3) {
@@ -12,7 +12,7 @@ if ($_SESSION['RolID'] != 1 && $_SESSION['RolID'] != 2 && $_SESSION['RolID'] != 
 }
 
 // Obtener datos del usuario
-$usuario = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$usuario = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 
 // Verificar si $usuario es un array válido y si tiene el índice 'UsuarioID'
 if (is_array($usuario) && isset($usuario['UsuarioID'])) {
@@ -25,7 +25,7 @@ if (is_array($usuario) && isset($usuario['UsuarioID'])) {
             $confirmarContrasena = mysqli_real_escape_string($conexion, $_POST['confirmar_contrasena']);
 
             // Verificar si la contraseña actual es correcta
-            $contrasenaActualDB = obtenerContrasenaUsuario($conexion, $_SESSION['NombreUsuario']);
+            $contrasenaActualDB = obtenerContrasenaUsuario($conexion, $_SESSION['UsuarioID']);
             if (password_verify($contrasenaActual, $contrasenaActualDB)) {
                 // Las contraseñas coinciden, hashear la nueva contraseña y actualizar en la base de datos
                 $hashedPassword = password_hash($nuevaContrasena, PASSWORD_DEFAULT);

@@ -1,7 +1,7 @@
 <?php
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 
 // Verificar si el usuario tiene el rol de administrador
 if ($_SESSION['RolID'] != 1 && $_SESSION['RolID'] != 3) {
@@ -83,7 +83,7 @@ $fechaFinBeneficioActual = obtenerFechaFinBeneficioActual($conexion, $producto['
 
     <div class="mx-4 my-4">
         <a class="btn text-white btn-lg btn-floating" data-mdb-ripple-init style="background-color: #ac2bac;"
-            role="button" onclick="cancelarActualizacion()">
+            role="button" onclick="window.location.href='gestionproductosA.php'">
             <i class="fas fa-angle-left"></i>
         </a>
 

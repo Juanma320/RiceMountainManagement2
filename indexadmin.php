@@ -4,7 +4,7 @@
 // Incluir configuraciones y funciones comunes
 include ('includes/includes.php');
 include ('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 // Verificar si el usuario tiene el rol de administrador
 if ($_SESSION['RolID'] != 1) {
     // Si no es administrador, redirigir a la página de inicio
@@ -15,7 +15,7 @@ if ($_SESSION['RolID'] != 1) {
 // Obtener datos del usuario
 
 // Obtener información de usuarios (excepto administradores)
-$query = 'SELECT NombreUsuario, Correo, DocumentoIdentidad, FechaUltimaActividad FROM Usuarios WHERE RolID != 1';
+$query = 'SELECT Nombre, NombreUsuario, Correo, DocumentoIdentidad, FechaUltimaActividad FROM Usuarios WHERE RolID != 1';
 $resultado = mysqli_query($conexion, $query);
 
 ?>
@@ -100,6 +100,7 @@ $resultado = mysqli_query($conexion, $query);
                     <thead class="table-dark">
                         <tr>
                             <th>Nombre</th>
+                            <th>Nombre de usuario</th>
                             <th>Correo</th>
                             <th>Documento Identidad</th>
                             <th>Fecha Última Actividad</th>
@@ -110,10 +111,19 @@ $resultado = mysqli_query($conexion, $query);
                         // Iterar sobre los resultados y mostrar en la tabla
                         while ($row = mysqli_fetch_assoc($resultado)) {
                             echo "<tr>";
+                            echo "<td>{$row['Nombre']}</td>";
                             echo "<td>{$row['NombreUsuario']}</td>";
                             echo "<td>{$row['Correo']}</td>";
                             echo "<td>{$row['DocumentoIdentidad']}</td>";
-                            echo "<td>{$row['FechaUltimaActividad']}</td>";
+                            echo "<td>";
+                            
+                            if ($row['FechaUltimaActividad'] === NULL) {
+                                echo "Usuario no ha iniciado sesión";
+                            } else {
+                                echo $row['FechaUltimaActividad'];
+                            }
+                        
+                            echo "</td>";
                             echo "</tr>";
                         }
                         ?>

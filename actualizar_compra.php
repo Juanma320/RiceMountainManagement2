@@ -1,7 +1,7 @@
 <?php
-include('includes/includes.php');
-include('includes/funciones.php');
-$row = obtenerDatosUsuario($conexion, $_SESSION['NombreUsuario']);
+include ('includes/includes.php');
+include ('includes/funciones.php');
+$row = obtenerDatosUsuario($conexion, $_SESSION['UsuarioID']);
 
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['compraID']) && isset($_GET['nuevoEstado'])) {
     $compraID = mysqli_real_escape_string($conexion, $_GET['compraID']);
@@ -28,4 +28,3 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['compraID']) && isset($_G
 } else {
     echo "Solicitud inválida.";
 }
-?>
