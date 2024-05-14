@@ -151,3 +151,29 @@ if (isset($_GET['proveedorID'])) {
 
     initMDB({ Ripple });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const fechaInput = document.getElementById('fecha');
+        const form = document.querySelector('form');
+
+        // Función para validar la fecha
+        function validarFecha() {
+            const fechaActual = new Date();
+            const fechaCompra = new Date(fechaInput.value);
+
+            if (fechaCompra < fechaActual) {
+                alert('Fecha de compra no permitida');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Agregar evento de validación al enviar el formulario
+        form.addEventListener('submit', function (event) {
+            if (!validarFecha()) {
+                event.preventDefault(); // Evitar el envío del formulario si la fecha es inválida
+            }
+        });
+    });
+</script>
